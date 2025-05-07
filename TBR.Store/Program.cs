@@ -2,6 +2,8 @@
 using Application.EF.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
+using TBL.Core.Contracts;
+using TBL.EF.Repositories;
 
 namespace TBR.Store
 {
@@ -18,6 +20,7 @@ namespace TBR.Store
                 options.UseSqlServer(builder.Configuration.GetConnectionString("ConStr"));
             });
 
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             var app = builder.Build();
 
             if (!app.Environment.IsDevelopment())

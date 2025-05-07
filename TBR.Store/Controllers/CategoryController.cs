@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using TBL.Core.Contracts;
 using TBL.Core.Converter;
 using TBL.Core.Models;
 
@@ -11,15 +12,15 @@ namespace TBR.Store.Controllers
     public class CategoryController : Controller
     {
 
-        private readonly AppDbContext _context;
-        public CategoryController(AppDbContext context)
+        private readonly IUnitOfWork _UnitOfWork;
+        public CategoryController(IUnitOfWork unitOfWork)
         {
-            _context=context;
+            _UnitOfWork = unitOfWork;
         }
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            List<Category> objCategoryList = await _context.Category.AsNoTracking().ToListAsync();
+            IEnumerable<Category> objCategoryList = await  _UnitOfWork.Category.GetAllAsync(false);
                 return View(objCategoryList);
         }
 
@@ -35,8 +36,11 @@ namespace TBR.Store.Controllers
        {
             if (ModelState.IsValid)
             {
-              await   _context.Category.AddAsync(obj);
-              await   _context.SaveChangesAsync();
+                //await   _context.Category.AddAsync(obj);
+                //await   _context.SaveChangesAsync();
+
+                await _UnitOfWork.Category.AddAsync(obj);
+                await _UnitOfWork.CompleteAsync();
               TempData["success"] = "Category Created Successfully";
               return RedirectToAction(nameof(CategoryController.Index));
             }
@@ -51,7 +55,7 @@ namespace TBR.Store.Controllers
        {
             if (id == null || id == 0)
                 return NotFound("No such Category");
-            Category ?category = await _context.Category.FindAsync(id);
+            Category? category = await _UnitOfWork.Category.GetOneAsync(id);
             if(category!=null)
             return View(category);
 
@@ -66,13 +70,13 @@ namespace TBR.Store.Controllers
             {
                 try
                 {
-                    Category? category = await _context.Category.FindAsync(obj.Id);
+                    Category? category = await _UnitOfWork.Category.GetOneAsync(obj.Id);
                     if (category != null)
                     {
                         Converter.ConvertToCategoryDTO(category, obj);
 
-                        _context.Category.Update(category);
-                        await _context.SaveChangesAsync();
+                       _UnitOfWork.Category.Update(category);
+                        await _UnitOfWork.CompleteAsync();
                         TempData["success"] = "Category Updated Successfully";
 
                         return RedirectToAction(nameof(CategoryController.Index));
@@ -94,7 +98,7 @@ namespace TBR.Store.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
-            Category? cat = await _context.Category.FindAsync(id);
+            Category? cat = await _UnitOfWork.Category.GetOneAsync(id);
 
             if(cat!=null)
             {
@@ -107,14 +111,14 @@ namespace TBR.Store.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deletee(int id)
         {
-            Category? cat = await _context.Category.FindAsync(id);
+            Category? cat = await _UnitOfWork.Category.GetOneAsync(id);
             if(cat==null)
             return NotFound("No such category");
 
             try
             {
-                _context.Category.Remove(cat);
-                await _context.SaveChangesAsync();
+               _UnitOfWork.Category.Remove(cat);
+                await _UnitOfWork.CompleteAsync();
                 TempData["success"] = "Category Deleted Successfully";
 
                 return RedirectToAction(nameof(CategoryController.Index));
