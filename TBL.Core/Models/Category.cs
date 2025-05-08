@@ -12,5 +12,7 @@ namespace TBL.Core.Models
         [MaxLength(100,ErrorMessage ="the name is too long")]
         public string Name { get; set; }
         public int DisplayOrder { get; set; }
+
+        public ICollection<Product>? Products { get; set; }
     }
 }

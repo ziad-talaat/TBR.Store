@@ -37,8 +37,7 @@ namespace TBR.Store.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                //await   _context.Category.AddAsync(obj);
-                //await   _context.SaveChangesAsync();
+                
 
                 await _UnitOfWork.Category.AddAsync(obj);
                 await _UnitOfWork.CompleteAsync();
@@ -71,20 +70,14 @@ namespace TBR.Store.Areas.Admin.Controllers
             {
                 try
                 {
-                    Category? category = await _UnitOfWork.Category.GetOneAsync(obj.Id);
-                    if (category != null)
-                    {
-                        category.ConvertToCategoryDTO(obj);
-
-                        _UnitOfWork.Category.Update(category);
+                        _UnitOfWork.Category.Update(obj);
                         await _UnitOfWork.CompleteAsync();
                         TempData["success"] = "Category Updated Successfully";
 
                         return RedirectToAction(nameof(Index));
-
-                    }
-
                 }
+
+
                 catch (DbUpdateException ex)
                 {
                     TempData["Error"] = "Unable to delete the category. It may be used in other data (e.g., foreign key constraint).";

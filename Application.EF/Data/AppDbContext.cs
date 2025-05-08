@@ -10,10 +10,16 @@ namespace Application.EF.Data
             
         }
         public DbSet<Category> Category { get; set; }
+        public DbSet<Product> Product { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+            modelBuilder.Entity<Category>()
+                .HasMany(x => x.Products)
+                .WithOne(x => x.Category)
+                .HasForeignKey(x => x.CategoryId).IsRequired(true).OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }
