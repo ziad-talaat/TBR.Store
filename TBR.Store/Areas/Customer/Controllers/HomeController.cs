@@ -2,8 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using TBL.Core.Models;
 
-namespace WebApplication1.Controllers
+namespace TBR.Store.Areas.Customer.Controllers
 {
+    [Area(nameof(Areas.Customer))]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
