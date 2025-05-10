@@ -8,66 +8,90 @@
         </div>
     </div>
     <div class="card-body p-4">
-        <form method="post" class="row">
+        <form method="post" class="row" enctype="multipart/form-data">
             <div class="border p-3">
-                @*<div asp-validation-summary="ModelOnly"></div>*@
-                <div class="form-floating py-2 col-12">
-                    <input asp-for="Title" class="form-control border-0 shadow" />
-                    <label asp-for="Title" class="ms-2"></label>
-                    <span asp-validation-for="Title" class="text-danger"></span>
-                </div>
-                <div class="form-floating py-2 col-12">
-                    <input asp-for="Describtion" class="form-control border-0 shadow" />
-                    <label asp-for="Describtion" class="ms-2"></label>
-                    <span asp-validation-for="Describtion" class="text-danger"></span>
-                </div>
-                <div class="form-floating py-2 col-12">
-                    <input asp-for="ISBN" class="form-control border-0 shadow" />
-                    <label asp-for="ISBN" class="ms-2"></label>
-                    <span asp-validation-for="ISBN" class="text-danger"></span>
-                </div>
-                <div class="form-floating py-2 col-12">
-                    <input asp-for="Author" class="form-control border-0 shadow" />
-                    <label asp-for="Author" class="ms-2"></label>
-                    <span asp-validation-for="Author" class="text-danger"></span>
-                </div>
-                <div class="form-floating py-2 col-12">
-                    <input asp-for="DisplayPrice" class="form-control border-0 shadow" />
-                    <label asp-for="DisplayPrice" class="ms-2"></label>
-                    <span asp-validation-for="DisplayPrice" class="text-danger"></span>
-                </div>
-                <div class="form-floating py-2 col-12">
-                    <input asp-for="Price" class="form-control border-0 shadow" />
-                    <label asp-for="Price" class="ms-2"></label>
-                    <span asp-validation-for="Price" class="text-danger"></span>
-                </div>
-                <div class="form-floating py-2 col-12">
-                    <input asp-for="Price50" class="form-control border-0 shadow" />
-                    <label asp-for="Price50" class="ms-2"></label>
-                    <span asp-validation-for="Price50" class="text-danger"></span>
-                </div>
-                <div class="form-floating py-2 col-12">
-                    <input asp-for="Price100" class="form-control border-0 shadow" />
-                    <label asp-for="Price100" class="ms-2"></label>
-                    <span asp-validation-for="Price100" class="text-danger"></span>
-                </div>
-                <div class="form-floating py-2 col-12">
-                    <select asp-for="CategoryId" asp-items="@ViewBag.Categories" class="form-control">
-                        <option value="">Select Category</option>
-                    </select>
-                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                <div asp-validation-summary="ModelOnly"></div>
+
+                <div class="row">
+                    <div class="col-10">
+                        <div class="form-floating py-2 col-12">
+                            <input asp-for="Title" class="form-control border-0 shadow" />
+                            <label asp-for="Title" class="ms-2"></label>
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3 row pt-1">
+                            <label asp-for="Describtion" class="pt-0" style="font-weight:600"></label>
+                        </div>
+                        <div class="border-1 border-dark" id="editor-container" style="height: 300px;"></div>
+
+                        <textarea asp-for="Describtion" id="description" class="d-none" style="display:none ;"></textarea>
+                        <div class="form-floating py-2 col-12">
+                            <input asp-for="ISBN" class="form-control border-0 shadow" />
+                            <label asp-for="ISBN" class="ms-2"></label>
+                            <span asp-validation-for="ISBN" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <input asp-for="ISBN" class="form-control border-0 shadow" />
+                            <label asp-for="ISBN" class="ms-2"></label>
+                            <span asp-validation-for="ISBN" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <input asp-for="Author" class="form-control border-0 shadow" />
+                            <label asp-for="Author" class="ms-2"></label>
+                            <span asp-validation-for="Author" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <input asp-for="DisplayPrice" class="form-control border-0 shadow" />
+                            <label asp-for="DisplayPrice" class="ms-2"></label>
+                            <span asp-validation-for="DisplayPrice" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <input asp-for="Price" class="form-control border-0 shadow" />
+                            <label asp-for="Price" class="ms-2"></label>
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <input asp-for="Price50" class="form-control border-0 shadow" />
+                            <label asp-for="Price50" class="ms-2"></label>
+                            <span asp-validation-for="Price50" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <input asp-for="Price100" class="form-control border-0 shadow" />
+                            <label asp-for="Price100" class="ms-2"></label>
+                            <span asp-validation-for="Price100" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating py-2 col-12">
+                            <input name="file" type="file" class="form-control border-0 shadow" />
+                            <label asp-for="ImageURL" class="ms-2"></label>
+                           
+                        </div>
+                        <input asp-for="ImageURL" type="hidden" />
+                        <div class="form-floating py-2 col-12">
+                            <select asp-for="CategoryId" asp-items="@ViewBag.Categories" class="form-control">
+                                <option value="">Select Category</option>
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="row pt-2">
+                            <div class="col-6 col-md-3">
+                                <button type="submit" class="btn btn-primary form-control">Update</button>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <a asp-controller="Product" asp-action="Index" class="btn btn-outline-primary border  form-control">
+                                    Back to List
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-2">
+                        <img src="@Model.ImageURL" width="100%" style="height: 250px; object-fit: cover;" />
+                    </div>
                 </div>
 
-                <div class="row pt-2">
-                    <div class="col-6 col-md-3">
-                        <button type="submit" class="btn btn-primary form-control">Update</button>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <a asp-controller="Product" asp-action="Index" class="btn btn-outline-primary border  form-control">
-                            Back to List
-                        </a>
-                    </div>
-                </div>
+
+               
 
 
             </div>
@@ -79,7 +103,22 @@
 
 
 @section Scripts {
+
+    <script>
+        var quill = new Quill('#editor-container', {
+            theme: 'snow'
+        });
+
+        var descriptionInput = document.querySelector('#description');
+
+        quill.root.innerHTML = descriptionInput.value;
+
+        quill.on('text-change', function () {
+            descriptionInput.value = quill.root.innerHTML;
+        });
+    </script>
     @{
         <partial name="_ValidationScriptsPartial" />
     }
 }
+ 

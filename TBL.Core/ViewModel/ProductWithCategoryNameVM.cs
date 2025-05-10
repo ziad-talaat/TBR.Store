@@ -44,5 +44,6 @@ namespace TBL.Core.ViewModel
 
 
         public string CategoryName { get; set; }
+        public string? ImageURL { get; set; }
     }
 }

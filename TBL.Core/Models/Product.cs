@@ -46,5 +46,8 @@ namespace TBL.Core.Models
         public int? CategoryId { get; set; }
         [ForeignKey(nameof(Product.CategoryId))]
         public Category? Category { get; set; }
+
+    
+        public string? ImageURL { get; set; }
     }
 }

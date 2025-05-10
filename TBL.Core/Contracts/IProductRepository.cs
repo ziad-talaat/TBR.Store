@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using TBL.Core.Converter;
 using TBL.Core.Models;
 using TBL.Core.ViewModel;
 
@@ -11,6 +8,8 @@ namespace TBL.Core.Contracts
     public interface IProductRepository:IBaseRepository<Product>
     {
         void Update(Product obj);
-        Task<IEnumerable<ProductWithCategoryNameVM>> GetProductWithProjectionToName();
+        Task<IEnumerable<ProductWithCategoryNameVM>> GetProductWithCategoryName();
+        Task<ProductWithCategoryNameVM> GetProductWithCategoryName(int id);
+        Pagination<Product> GetAllSortedAndFilterdInPage(string? filterBy, string filterValue, string? sortBy, bool isAssending = true, int page = 1);
     }
 }

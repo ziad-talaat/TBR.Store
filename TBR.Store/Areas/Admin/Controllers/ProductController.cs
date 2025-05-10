@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.Operations;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing;
 using TBL.Core.Contracts;
 using TBL.Core.Models;
 
@@ -11,14 +11,16 @@ namespace TBR.Store.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public ProductController(IUnitOfWork UnitOfWork)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public ProductController(IUnitOfWork UnitOfWork,IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = UnitOfWork;   
+            _webHostEnvironment=webHostEnvironment;
         }
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var products =await  _unitOfWork.Products.GetProductWithProjectionToName();
+            var products =await  _unitOfWork.Products.GetProductWithCategoryName();
             return View(products);
         }
     
@@ -38,25 +40,49 @@ namespace TBR.Store.Areas.Admin.Controllers
     
          [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product product)
+        public async Task<IActionResult> Create(Product product,IFormFile? file)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || file == null)
             {
-               var categories = await _unitOfWork.Category.GetAllAsync(false);
-               var categoriesListItems = categories.Select(x => new SelectListItem
-               {
-                   Value = x.Id.ToString(),
-                   Text = x.Name,
-               });
-               ViewBag.Categories = categoriesListItems;
+                if (file == null)
+                    ModelState.AddModelError("ImageURL", "should provide an image to the product");
+
+                var categories = await _unitOfWork.Category.GetAllAsync(false);
+                var categoriesListItems = categories.Select(x => new SelectListItem
+                {
+                    Value = x.Id.ToString(),
+                    Text = x.Name,
+                });
+                ViewBag.Categories = categoriesListItems;
                 return View(product);
             }
-           await _unitOfWork.Products.AddAsync(product);
-            await _unitOfWork.CompleteAsync();
-            TempData["success"] = "product added successfuly";
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+           
+                string fileName=Guid.NewGuid().ToString()+Path.GetExtension(file.FileName);
+                string productPath = Path.Combine(wwwRootPath, @"Images\Products"); 
 
-            return RedirectToAction(nameof(ProductController.Index));
+                using(var fileStream =new FileStream(Path.Combine(productPath,fileName),FileMode.Create))
+                {
+                   await  file.CopyToAsync(fileStream);
+                }
+            product.ImageURL = @"/Images/Products/" + fileName;
+            
+            try
+            {  
+                await _unitOfWork.Products.AddAsync(product);
+                await _unitOfWork.CompleteAsync();
+             TempData["success"] = "product added successfuly";
+             return RedirectToAction(nameof(ProductController.Index));
+            }
+                
+            catch(DbUpdateException ex)
+            {
+                TempData["Error"] = "failed to Add";
+                return RedirectToAction(nameof(ProductController.Index));
+            }
         }
+
+
     
          [HttpGet]
         public async Task<IActionResult> Edit(int id)
@@ -75,9 +101,9 @@ namespace TBR.Store.Areas.Admin.Controllers
             return View(product);
         }
     
-         [HttpPost]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Product product)
+        public async Task<IActionResult> Edit(Product product ,IFormFile? file)
         {
             if (!ModelState.IsValid)
             {
@@ -90,6 +116,32 @@ namespace TBR.Store.Areas.Admin.Controllers
                 ViewBag.Categories = categoriesListItems;
                 return View(product);
             }
+
+            if (file != null)
+            {
+                if (!string.IsNullOrEmpty(product.ImageURL))
+                {
+                    var oldimagePath = Path.Combine(_webHostEnvironment.WebRootPath, product.ImageURL.TrimStart('/'));
+
+                    if (System.IO.File.Exists(oldimagePath))
+                    {
+                        System.IO.File.Delete(oldimagePath);
+                    }
+                }
+    
+
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
+
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                string productPath = Path.Combine(wwwRootPath, @"Images\Products");
+
+                using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+                product.ImageURL = @"/Images/Products/" + fileName;
+            }
+
             try
             {
 
@@ -124,7 +176,15 @@ namespace TBR.Store.Areas.Admin.Controllers
             Product? product = await _unitOfWork.Products.GetOneAsync<int>(id);
             if (product == null)
                 return View("Error");
+            if (!string.IsNullOrEmpty(product.ImageURL))
+            {
+                var oldimagePath = Path.Combine(_webHostEnvironment.WebRootPath, product.ImageURL.TrimStart('/'));
 
+                if (System.IO.File.Exists(oldimagePath))
+                {
+                    System.IO.File.Delete(oldimagePath);
+                }
+            }
             try
             {
 
@@ -142,6 +202,17 @@ namespace TBR.Store.Areas.Admin.Controllers
         }
 
 
+
+        #region ApiCalls
+        [HttpGet]
+        public async Task< IActionResult> GetAll()
+        {
+            var productsData = await _unitOfWork.Products.GetProductWithCategoryName();
+           return Json(new {data= productsData } );
+        }
+   
+
+        #endregion
 
     }
 }

@@ -19,12 +19,13 @@
             </div>
         </div>
 
-        <table class="table table-bordered table-striped">
+        <table id="tblData" class="table table-bordered table-striped">
             <thead>
                 <tr>
                     <th>
-                        Product Title
+                         Title
                     </th>
+                        
                     <th>
                         Describtion
                     </th>
@@ -35,70 +36,22 @@
                         Author
                     </th>
                        <th>
-                        Display Price
+                        DisplayPrice
                     </th>
+                    
                      <th>
-                       Price
-                    </th>
-                     <th>
-                       Price 50+
-                    </th>
-                     <th>
-                       Price 100+
-                    </th>
-                     <th>
-                      Category
-                    </th>
-
+                        categoryName
+                    </th> 
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var obj in Model)
-                {
-                    <tr>
-                        <td>
-                            @obj.Title
-                        </td>
-                        <td>
-                            @obj.Describtion
-                        </td>
-                       
-                        <td>
-                            @obj.ISBN
-                        </td>
-                          <td>
-                            @obj.Author
-                        </td>
-                          <td>
-                            @obj.DisplayPrice
-                        </td>
-                          <td>
-                            @obj.Price
-                        </td>
-                          <td>
-                            @obj.Price50
-                        </td>
-                          <td>
-                            @obj.Price100
-                        </td>
-                         <td>
-                            @obj.CategoryName
-                        </td>
-
-                        <td>
-                            <div class="w-75 btn-group" role="group">
-                                <a asp-controller="Product" asp-action="Edit" asp-route-id="@obj.Id" class="btn btn-primary mx-2">
-                                    <i class="bi bi-pencil-square"></i> Edit
-                                </a>
-                                <a asp-controller="Product" asp-action="Delete" asp-route-id="@obj.Id" class="btn btn-danger mx-2">
-                                    <i class="bi bi-trash-fill"></i> Delete
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                }
+              
             </tbody>
         </table>
 
     </div>
 </div>
+@section Scripts{
+    <script src="~/js/product.js"></script>
+}
