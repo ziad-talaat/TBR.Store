@@ -7,6 +7,7 @@ using TBL.Core.Contracts;
 using TBL.Core.Converter;
 using TBL.Core.Models;
 using TBL.Core.ViewModel;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace TBR.Store.Areas.Customer.Controllers
 {
@@ -23,9 +24,9 @@ namespace TBR.Store.Areas.Customer.Controllers
 
 
         [HttpGet]
-        public IActionResult Index(string ?searchBy,string?searchValue,string ?sortBy ,bool isAssending=true,int pageNumber=1)
+        public async Task<IActionResult> Index(string ?searchBy,string?searchValue,string ?sortBy,string ?value ,bool isAssending=true,int pageNumber=1)
         {
-            Pagination<Product> pageDetails=  _unitOfWork.Products.GetAllSortedAndFilterdInPage(searchBy,searchValue,sortBy,isAssending,pageNumber);
+            Pagination<Product> pageDetails=  _unitOfWork.Products.GetAllSortedAndFilterdInPage(searchBy,searchValue,sortBy, value, isAssending,pageNumber);
             ViewBag.CurrentSearchBy = searchBy;
             ViewBag.CurrentSearchValue = searchValue;
             ViewBag.CurrentSortBy = sortBy;
@@ -37,6 +38,16 @@ namespace TBR.Store.Areas.Customer.Controllers
               new SelectListItem { Value = nameof(Product.Author), Text = "Author",Selected = (searchBy == nameof(Product.Author)) },
               new SelectListItem { Value = nameof(Product.Price), Text = "Price",Selected = (searchBy == nameof(Product.Price)) },
             };
+
+           var categoriesNames=await _unitOfWork.Category.GetCategoriesName();
+
+            ViewBag.FilterCategories = categoriesNames.Select(x => new SelectListItem
+            {
+                Value = x,
+                Text = x,
+                Selected = (value == x)
+            }).ToList();
+
 
             
             return View(pageDetails);

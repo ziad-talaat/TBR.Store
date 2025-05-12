@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using System.Collections.Specialized;
 using System.Linq.Expressions;
 using System.Reflection;
 using TBL.Core.Contracts;
@@ -68,7 +69,7 @@ namespace TBL.EF.Repositories
 
      
 
-     public Pagination<Product> GetAllSortedAndFilterdInPage(string? filterBy,string filterValue,string? sortBy,bool isAssending=true,int page = 1)
+     public Pagination<Product> GetAllSortedAndFilterdInPage(string? filterBy,string filterValue,  string? sortBy, string? value, bool isAssending=true,int page = 1)
      {
             IQueryable<Product> query = _context.Product.AsNoTracking().AsQueryable();
             if (!string.IsNullOrEmpty(filterBy) && !string.IsNullOrEmpty(filterValue))
@@ -78,8 +79,14 @@ namespace TBL.EF.Repositories
 
             if (!string.IsNullOrEmpty(sortBy) )
             {
-                query=BuildSortQuery(query,sortBy,isAssending);
+                query =BuildSortQuery(query,sortBy,isAssending);
             }
+            if (!string.IsNullOrEmpty(value))
+            {
+                query = query.Include(nameof(Product.Category));
+                 query=ApplyFilterByCategory(query,value);
+            }
+
           Pagination<Product>pageDetails= Pagination<Product>.GetPage(query, page, 8);
             return pageDetails;
      } 
@@ -142,6 +149,24 @@ namespace TBL.EF.Repositories
             }
 
             var lambda = Expression.Lambda<Func<Product, bool>>(predicate, parameter);
+            return query.Where(lambda);
+
+        }
+
+        private IQueryable<Product>ApplyFilterByCategory(IQueryable<Product> query, string value)
+        {
+            
+
+            var parameter = Expression.Parameter(typeof(Product), "x");
+            var categoryProperty = Expression.Property(parameter, nameof(Product.Category));
+            var nameProperty = Expression.Property(categoryProperty, nameof(Category.Name));
+
+            var constant=Expression.Constant(value, nameProperty.Type);
+            var equal=Expression.Equal(nameProperty, constant);
+           
+          
+
+            var lambda = Expression.Lambda<Func<Product, bool>>(equal, parameter);  
             return query.Where(lambda);
 
         }

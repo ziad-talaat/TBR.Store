@@ -1,4 +1,4 @@
-﻿
+﻿@* 
 
  @model Pagination<Product>
 
@@ -142,5 +142,177 @@
             </div>
         }
        </div>
+    </div>
+</div>
+ *@
+
+
+ @model Pagination<Product>
+
+@{
+    ViewData["Title"] = "Products";
+    var currentSortBy = ViewBag.CurrentSortBy as string ?? "";
+    var currentOrder = (bool)(ViewBag.CurrentOrder ?? true);
+    var currentSearchBy = ViewBag.CurrentSearchBy as string ?? "";
+    var currentSearchValue = ViewBag.CurrentSearchValue as string ?? "";
+    var currentCategory = ViewBag.CurrentCategoryFilter as string ?? "";
+    var categories = ViewBag.FilterCategories as List<SelectListItem> ?? new List<SelectListItem>();
+}
+
+<div class="row">
+    <!-- Sidebar: Sort & Category Filter -->
+    <div class="col-md-2">
+        <form asp-action="Index" method="get" class="border p-2 rounded bg-light">
+            <h6 class="mb-2">Sort &amp; Filter</h6>
+
+            <!-- Sort By -->
+            <div class="form-group mb-2">
+                <label class="form-label small">Sort By</label>
+                <select class="form-select form-select-sm" name="sortBy">
+                    <option value="">-- Select --</option>
+                    <option value="Price100" selected="@("Price100" == ViewBag.CurrentSortBy)">Price</option>
+                </select>
+            </div>
+
+            <!-- Order -->
+            <div class="form-group mb-2">
+                <label class="form-label small">Order</label><br />
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="isAssending" value="true" @(currentOrder ? "checked" : "") />
+                    <label class="form-check-label small">Asc</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="isAssending" value="false" @(!currentOrder ? "checked" : "") />
+                    <label class="form-check-label small">Desc</label>
+                </div>
+            </div>
+
+            <!-- Category Filter -->
+           
+            <!-- Preserve Search Params -->
+            <input type="hidden" name="searchBy" value="@currentSearchBy" />
+            <input type="hidden" name="searchValue" value="@currentSearchValue" />
+
+            <button type="submit" class="btn btn-sm btn-primary w-100">Apply</button>
+        </form>
+
+           <form asp-action="Index" method="get" class="border p-2 rounded bg-light">
+        <div class="form-group mb-2">
+            <label class="form-label small">Category</label>
+            <select name="value" asp-items="ViewBag.FilterCategories">
+                <option value="">--select Option--</option>
+
+            </select>
+        </div>
+            <button type="submit" class="btn btn-sm btn-primary w-100">Apply</button>
+        <</form>
+
+    </div>
+
+    <!-- Main: Search & Products -->
+    <div class="col-md-10">
+        <!-- Search -->
+        <form asp-action="Index" method="get" class="form-control mb-3 p-3">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <select name="searchBy" asp-items="ViewBag.SearchItems" class="form-select form-select-sm">
+                        <option value="">-- Select Property --</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <input type="search" name="searchValue" class="form-control form-control-sm" placeholder="Search..." value="@currentSearchValue" />
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-sm btn-outline-primary w-100">Search</button>
+                </div>
+            </div>
+            <!-- Preserve Sort & Category -->
+            <input type="hidden" name="sortBy" value="@currentSortBy" />
+            <input type="hidden" name="isAssending" value="@currentOrder" />
+            <input type="hidden" name="categoryFilter" value="@currentCategory" />
+        </form>
+
+        <!-- Products Grid -->
+        <div class="row pb-3">
+            @foreach (var product in Model.Items)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6 d-flex mb-4">
+                    <div class="card border-0 p-3 shadow border-top border-5 rounded w-100 h-100 d-flex flex-column">
+                        @if (!string.IsNullOrEmpty(product.ImageURL))
+                        {
+                            <img src="@product.ImageURL" class="card-img-top rounded" style="height:250px;object-fit:cover;" />
+                        }
+                        else
+                        {
+                            <img src="https://placehold.co/500x600/png" class="card-img-top rounded" style="height:250px;object-fit:cover;" />
+                        }
+
+                        <div class="card-body pb-0 flex-grow-1 d-flex flex-column">
+                            <div class="flex-grow-1 text-center">
+                                <p class="h6 text-dark opacity-75 text-uppercase">@product.Title</p>
+                                <p class="text-warning">by <strong>@product.Author</strong></p>
+                                <p class="text-dark text-opacity-75 mb-0">
+                                    <small>List: <span class="text-decoration-line-through">@product.DisplayPrice:c</span></small>
+                                </p>
+                                <p class="text-dark text-opacity-75">
+                                    <small>As low as: @product.Price100:c</small>
+                                </p>
+                            </div>
+                        </div>
+
+                        <a asp-action="Details" asp-route-id="@product.Id"
+                           class="btn btn-primary bg-gradient border-0 form-control mt-auto">Details</a>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-pageNumber="@(Model.CurrentPage - 1)"
+                           asp-route-searchBy="@currentSearchBy"
+                           asp-route-searchValue="@currentSearchValue"
+                           asp-route-sortBy="@currentSortBy"
+                           asp-route-isAssending="@currentOrder"
+                           asp-route-categoryFilter="@currentCategory">
+                            Previous
+                        </a>
+                    </li>
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-pageNumber="@i"
+                               asp-route-searchBy="@currentSearchBy"
+                               asp-route-searchValue="@currentSearchValue"
+                               asp-route-sortBy="@currentSortBy"
+                               asp-route-isAssending="@currentOrder"
+                               asp-route-categoryFilter="@currentCategory">
+                                @i
+                            </a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-pageNumber="@(Model.CurrentPage + 1)"
+                           asp-route-searchBy="@currentSearchBy"
+                           asp-route-searchValue="@currentSearchValue"
+                           asp-route-sortBy="@currentSortBy"
+                           asp-route-isAssending="@currentOrder"
+                           asp-route-categoryFilter="@currentCategory">
+                            Next
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
     </div>
 </div>

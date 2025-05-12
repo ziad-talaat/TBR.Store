@@ -10,6 +10,6 @@ namespace TBL.Core.Contracts
         void Update(Product obj);
         Task<IEnumerable<ProductWithCategoryNameVM>> GetProductWithCategoryName();
         Task<ProductWithCategoryNameVM> GetProductWithCategoryName(int id);
-        Pagination<Product> GetAllSortedAndFilterdInPage(string? filterBy, string filterValue, string? sortBy, bool isAssending = true, int page = 1);
+        Pagination<Product> GetAllSortedAndFilterdInPage(string? filterBy, string filterValue, string? value, string? sortBy, bool isAssending = true, int page = 1);
     }
 }

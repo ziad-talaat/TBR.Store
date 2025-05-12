@@ -10,5 +10,6 @@ namespace TBL.Core.Contracts
     public interface ICategory:IBaseRepository<Category>
     {
         void Update(Category category);
+        Task<List<string>> GetCategoriesName();
     }
 }

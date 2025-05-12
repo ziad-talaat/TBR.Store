@@ -1,4 +1,5 @@
 ﻿using Application.EF.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +16,17 @@ namespace TBL.EF.Repositories
         {
             
         }
+
+
         public void Update(Category category)
         {
            _context.Category.Update(category);
         }
+
+        public async Task<List<string>> GetCategoriesName()
+        {
+             return await _context.Category.AsNoTracking().Select(x=>x.Name).ToListAsync();
+        }
+
     }
 }
