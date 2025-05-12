@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TBL.Core.Models;
 
 namespace TBL.Core.Contracts
 {
@@ -10,6 +11,8 @@ namespace TBL.Core.Contracts
     {
        ICategory Category { get; }
         IProductRepository Products { get; }
+        IBaseRepository<ApplicationUser> User { get; }
+        IBaseRepository<Company> Company { get; }
         Task CompleteAsync();
      
     }

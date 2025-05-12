@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using TBL.Core.Contracts;
+using TBL.Core.Converter;
 using TBL.Core.Models;
 using TBL.Core.ViewModel;
 
@@ -17,12 +21,25 @@ namespace TBR.Store.Areas.Customer.Controllers
             _unitOfWork= unitOfWork;
         }
 
+
         [HttpGet]
-        public IActionResult Index(string ?searchBy,string?searchValue,string ?sortBy,bool isAssending=true,int pageNumber=1)
+        public IActionResult Index(string ?searchBy,string?searchValue,string ?sortBy ,bool isAssending=true,int pageNumber=1)
         {
-            var pageDetails=  _unitOfWork.Products.GetAllSortedAndFilterdInPage(searchBy,searchValue,sortBy,isAssending,pageNumber);
-            IEnumerable<Product> products = pageDetails.Items;
-            return View(products);
+            Pagination<Product> pageDetails=  _unitOfWork.Products.GetAllSortedAndFilterdInPage(searchBy,searchValue,sortBy,isAssending,pageNumber);
+            ViewBag.CurrentSearchBy = searchBy;
+            ViewBag.CurrentSearchValue = searchValue;
+            ViewBag.CurrentSortBy = sortBy;
+            ViewBag.CurrentOrder = isAssending;
+            ViewBag.SearchItems = new List<SelectListItem>
+            {
+              new SelectListItem { Value = nameof(Product.Title), Text = "Title" , Selected = (searchBy == nameof(Product.Title))},
+              new SelectListItem { Value = nameof(Product.ISBN), Text = "ISBN" ,Selected = (searchBy == nameof(Product.ISBN))},
+              new SelectListItem { Value = nameof(Product.Author), Text = "Author",Selected = (searchBy == nameof(Product.Author)) },
+              new SelectListItem { Value = nameof(Product.Price), Text = "Price",Selected = (searchBy == nameof(Product.Price)) },
+            };
+
+            
+            return View(pageDetails);
         }
 
         [HttpGet]

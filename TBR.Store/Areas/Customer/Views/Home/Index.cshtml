@@ -1,47 +1,146 @@
 ﻿
- @model IEnumerable<Product>
 
-<div class="row pb-3">
-    @foreach (var product in Model)
-    {
-        <div class="col-lg-3 col-sm-6 d-flex">
-            <div class="card border-0 p-3 shadow border-top border-5 rounded w-100 h-100 d-flex flex-column">
-                @if (product.ImageURL != null)
-                {
-                    <img src="@product.ImageURL" class="card-img-top rounded" style="height: 250px; object-fit: cover;" />
-                }
-                else
-                {
-                    <img src="https://placehold.co/500x600/png" class="card-img-top rounded" style="height: 250px; object-fit: cover;" />
-                }
+ @model Pagination<Product>
 
-                <div class="card-body pb-0 flex-grow-1 d-flex flex-column">
-                    <div class="flex-grow-1">
-                        <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">@product.Title</p>
-                        <p class="card-title text-warning text-center">by <b>@product.Author</b></p>
-                        <p class="text-dark text-opacity-75 text-center mb-0">
-                            List Price:
-                            <span class="text-decoration-line-through">
-                                @product.DisplayPrice.ToString("c")
-                            </span>
-                        </p>
-                        <p class="text-dark text-opacity-75 text-center">
-                            As low as:
-                            <span>
-                                @product.Price100.ToString("c")
-                            </span>
-                        </p>
-                    </div>
+<div class="row">
+    <div class="col-md-2">
+        <form asp-action="Index" method="get" class="border p-2 rounded bg-light">
+            <h6 class="mb-2">Sort Options</h6>
+
+            <div class="form-group mb-2">
+                <label class="form-label small">Sort By</label>
+                <select class="form-select form-select-sm" name="sortBy">
+                    <option value="">-- Select --</option>
+                    <option value="Price100" selected="@("Price100" == ViewBag.CurrentSortBy)">Price</option>
+                </select>
+            </div>
+
+            <div class="form-group mb-2">
+                <label class="form-label small">Order</label><br />
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="isAssending" value="true" checked="@(ViewBag.CurrentOrder == true)">
+                    <label class="form-check-label small">Asc</label>
                 </div>
-
-                <div>
-                    <a asp-action="Details"
-                       asp-route-id="@product.Id"
-                       class="btn btn-primary bg-gradient border-0 form-control mt-auto">
-                        Details
-                    </a>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="isAssending" value="false" checked="@(ViewBag.CurrentOrder == false)">
+                    <label class="form-check-label small">Desc</label>
                 </div>
             </div>
+
+            <input type="hidden" name="searchBy" value="@ViewBag.CurrentSearchBy" />
+            <input type="hidden" name="searchValue" value="@ViewBag.CurrentSearchValue" />
+
+            <button type="submit" class="btn btn-sm btn-primary w-100">Apply</button>
+        </form>
+    </div>
+
+    <div class="col-md-10">
+        <form asp-action="Index" class="form-control mb-3 p-3" method="get">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <select name="searchBy" asp-items="ViewBag.SearchItems" class="form-select form-select-sm">
+                        <option value="">-- Select Property --</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <input type="search" id="Search" class="form-control form-control-sm" placeholder="Search..." name="searchValue" value="@ViewBag.CurrentSearchValue" />
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-sm btn-outline-primary w-100">Search</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="row pb-3">
+            @foreach (var product in Model.Items)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6 d-flex mb-4">
+                    <div class="card border-0 p-3 shadow border-top border-5 rounded w-100 h-100 d-flex flex-column">
+                        @if (product.ImageURL != null)
+                        {
+                            <img src="@product.ImageURL" class="card-img-top rounded" style="height: 250px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <img src="https://placehold.co/500x600/png" class="card-img-top rounded" style="height: 250px; object-fit: cover;" />
+                        }
+
+                        <div class="card-body pb-0 flex-grow-1 d-flex flex-column">
+                            <div class="flex-grow-1">
+                                <p class="card-title h6 text-dark opacity-75 text-uppercase text-center">@product.Title</p>
+                                <p class="card-title text-warning text-center">by <b>@product.Author</b></p>
+                                <p class="text-dark text-opacity-75 text-center mb-0">
+                                    List Price:
+                                    <span class="text-decoration-line-through">@product.DisplayPrice.ToString("c")</span>
+                                </p>
+                                <p class="text-dark text-opacity-75 text-center">
+                                    As low as:
+                                    <span>@product.Price100.ToString("c")</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <a asp-action="Details"
+                               asp-route-id="@product.Id"
+                               class="btn btn-primary bg-gradient border-0 form-control mt-auto">
+                                Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
-    }
+        <div class="row pb-3 mb-5">
+        @if (Model.TotalPages > 1)
+        {
+            <div class="row">
+                <div class="col-12 mt-2">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-pageNumber="@(Model.CurrentPage - 1)"
+                                   asp-route-searchBy="@ViewBag.CurrentSearchBy"
+                                   asp-route-searchValue="@ViewBag.CurrentSearchValue"
+                                   asp-route-sortBy="@ViewBag.CurrentSortBy"
+                                   asp-route-isAssending="@ViewBag.CurrentOrder">
+                                    Previous
+                                </a>
+                            </li>
+
+                            @for (int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-pageNumber="@i"
+                                       asp-route-searchBy="@ViewBag.CurrentSearchBy"
+                                       asp-route-searchValue="@ViewBag.CurrentSearchValue"
+                                       asp-route-sortBy="@ViewBag.CurrentSortBy"
+                                       asp-route-isAssending="@ViewBag.CurrentOrder">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-pageNumber="@(Model.CurrentPage + 1)"
+                                   asp-route-searchBy="@ViewBag.CurrentSearchBy"
+                                   asp-route-searchValue="@ViewBag.CurrentSearchValue"
+                                   asp-route-sortBy="@ViewBag.CurrentSortBy"
+                                   asp-route-isAssending="@ViewBag.CurrentOrder">
+                                    Next
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        }
+       </div>
+    </div>
 </div>

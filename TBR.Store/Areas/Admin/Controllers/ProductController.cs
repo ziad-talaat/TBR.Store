@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing;
 using TBL.Core.Contracts;
+using TBL.Core.Enums;
 using TBL.Core.Models;
 
 namespace TBR.Store.Areas.Admin.Controllers
 {
     [Area(nameof(Areas.Admin))]
+    [Authorize(Roles = Roles.Role_Admin)]
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

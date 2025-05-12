@@ -102,6 +102,10 @@ namespace TBL.EF.Repositories
             _context.Set<T>().RemoveRange(item);
         }
 
+        public void Update(T item)
+        {
+            _context.Set<T>().Update(item);   
+        }
 
         private IQueryable<T>GetQuery()
         {

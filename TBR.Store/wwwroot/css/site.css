@@ -19,7 +19,9 @@ a.navbar-brand {
     word-break: break-all;
 }
 
-
+.nav-item .nav-link:hover {
+    color: #f8f9fa !important;
+}
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
     color: #fff;

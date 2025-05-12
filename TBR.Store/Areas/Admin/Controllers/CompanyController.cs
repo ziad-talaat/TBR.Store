@@ -1,10 +1,7 @@
-﻿using Application.EF.Data;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using TBL.Core.Contracts;
-using TBL.Core.Converter;
 using TBL.Core.Enums;
 using TBL.Core.Models;
 
@@ -12,18 +9,18 @@ namespace TBR.Store.Areas.Admin.Controllers
 {
     [Area(nameof(Areas.Admin))]
     [Authorize(Roles =Roles.Role_Admin)]
-    public class CategoryController : Controller
+    public class CompanyController : Controller
     {
 
         private readonly IUnitOfWork _UnitOfWork;
-        public CategoryController(IUnitOfWork unitOfWork)
+        public CompanyController(IUnitOfWork unitOfWork)
         {
             _UnitOfWork = unitOfWork;
         }
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            IEnumerable<Category> objCategoryList = await _UnitOfWork.Category.GetAllAsync(false);
+            IEnumerable<Company> objCategoryList = await _UnitOfWork.Company.GetAllAsync(false);
             return View(objCategoryList);
         }
 
@@ -35,15 +32,15 @@ namespace TBR.Store.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
 
-        public async Task<IActionResult> Create(Category obj)
+        public async Task<IActionResult> Create(Company obj)
         {
             if (ModelState.IsValid)
             {
                 
 
-                await _UnitOfWork.Category.AddAsync(obj);
+                await _UnitOfWork.Company.AddAsync(obj);
                 await _UnitOfWork.CompleteAsync();
-                TempData["success"] = "Category Created Successfully";
+                TempData["success"] = "Company Created Successfully";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -56,25 +53,25 @@ namespace TBR.Store.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             if (id == null || id == 0)
-                return NotFound("No such Category");
-            Category? category = await _UnitOfWork.Category.GetOneAsync(id);
-            if (category != null)
-                return View(category);
+                return NotFound("invalid entry");
+            Company? company = await _UnitOfWork.Company.GetOneAsync(id);
+            if (company != null)
+                return View(company);
 
-            return NotFound("No such Category");
+            return NotFound("No such company");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Category obj)
+        public async Task<IActionResult> Edit(Company obj)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                        _UnitOfWork.Category.Update(obj);
+                        _UnitOfWork.Company.Update(obj);
                         await _UnitOfWork.CompleteAsync();
-                        TempData["success"] = "Category Updated Successfully";
+                        TempData["success"] = "company Updated Successfully";
 
                         return RedirectToAction(nameof(Index));
                 }
@@ -82,7 +79,7 @@ namespace TBR.Store.Areas.Admin.Controllers
 
                 catch (DbUpdateException ex)
                 {
-                    TempData["Error"] = "Unable to delete the category. It may be used in other data (e.g., foreign key constraint).";
+                    TempData["Error"] = "Unable to delete the company. It may be used in other data (e.g., foreign key constraint).";
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -94,34 +91,34 @@ namespace TBR.Store.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
-            Category? cat = await _UnitOfWork.Category.GetOneAsync(id);
+            Company? cat = await _UnitOfWork.Company.GetOneAsync(id);
 
             if (cat != null)
             {
                 return View(cat);
             }
-            return NotFound("No such category");
+            return NotFound("No such Cmpany");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Deletee(int id)
+        public async Task<IActionResult> DeletePost(int id)
         {
-            Category? cat = await _UnitOfWork.Category.GetOneAsync(id);
-            if (cat == null)
-                return NotFound("No such category");
+            Company? company = await _UnitOfWork.Company.GetOneAsync(id);
+            if (company == null)
+                return NotFound("No such Company");
 
             try
             {
-                _UnitOfWork.Category.Remove(cat);
+                _UnitOfWork.Company.Remove(company);
                 await _UnitOfWork.CompleteAsync();
-                TempData["success"] = "Category Deleted Successfully";
+                TempData["success"] = "Company Deleted Successfully";
 
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException ex)
             {
-                TempData["Error"] = "Unable to delete the category. It may be used in other data (e.g., foreign key constraint).";
+                TempData["Error"] = "Unable to delete the Comapny. It may be used in other data (e.g., foreign key constraint).";
                 return RedirectToAction(nameof(Index));
             }
 

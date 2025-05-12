@@ -113,29 +113,37 @@ namespace TBL.EF.Repositories
             var parameter = Expression.Parameter(typeof(Product), "x");
             var property = Expression.Property(parameter, filterBy);
 
-            var propertyType=property.Type;
+            var propertyType = property.Type;
             var targetType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
 
-            //var convertedValue=Convert.ChangeType(filterValue,propertyType);
-            object convertedValue;
+            object? convertedValue;
             try
             {
                 convertedValue = Convert.ChangeType(filterValue, targetType);
             }
             catch
             {
-                // Invalid filterValue; return unfiltered query or throw depending on your needs
                 return query;
             }
 
-            var constant = Expression.Constant(convertedValue, propertyType);
+            Expression predicate;
 
-           var  equal=Expression.Equal(property,constant);
-            var lambda=Expression.Lambda<Func<Product,bool>>(equal, parameter);
+            if (property.Type == typeof(string))
+            {
+                var notNull = Expression.NotEqual(property, Expression.Constant(null, typeof(string)));
+                var method = typeof(string).GetMethod("Contains", new[] { typeof(string) })!;
+                var contains = Expression.Call(property, method, Expression.Constant(filterValue));
+                predicate = Expression.AndAlso(notNull, contains);
+            }
+            else
+            {
+                var constant = Expression.Constant(convertedValue, property.Type);
+                predicate = Expression.Equal(property, constant);
+            }
 
-           return  query.Where(lambda);
+            var lambda = Expression.Lambda<Func<Product, bool>>(predicate, parameter);
+            return query.Where(lambda);
 
-            
         }
     }
 

@@ -49,5 +49,9 @@ namespace TBL.Core.Models
 
     
         public string? ImageURL { get; set; }
+
+
+        public ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
+        public ICollection<UserProduct_Voting> UserProduct_Voting { get; set; } = new List<UserProduct_Voting>();
     }
 }
