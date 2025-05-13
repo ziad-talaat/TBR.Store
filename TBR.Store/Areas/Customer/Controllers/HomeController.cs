@@ -8,6 +8,9 @@ using TBL.Core.Converter;
 using TBL.Core.Models;
 using TBL.Core.ViewModel;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace TBR.Store.Areas.Customer.Controllers
 {
@@ -57,28 +60,60 @@ namespace TBR.Store.Areas.Customer.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            ProductWithCategoryNameVM? product = await _unitOfWork.Products.GetProductWithCategoryName(id);
-            if (product!= null) 
+            Product ?product = await _unitOfWork.Products.GetSpecific(x => x.Id == id, false, new[] {nameof(Product.Category)});
+            if(product==null)
             {
-                return View(product);
-            }
-            else
-            {
-                ViewBag.Error = "No Product Details";
+                TempData["Error"] = "no such product ";
                 return RedirectToAction(nameof(HomeController.Index));
             }
+            ShoppingCart cart = new()
+            {
+                Product = product,
+                Count =1,
+                ProductId=id,
+            };
+                return View(cart);
         }
+          
+           
+          [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> Details(ShoppingCart cart)
+        {
+            var claimIdentity =(ClaimsIdentity) User.Identity;
+            var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            cart.UserId = userId;
+
+           ShoppingCart ? cartExist = await _unitOfWork.ShoppingCart.GetSpecific(x => x.UserId == userId&&x.ProductId==cart.ProductId,true);
+
+            if (cartExist != null) {
+
+                cartExist.Count += cart.Count;
+                _unitOfWork.ShoppingCart.Update(cartExist);
+                await _unitOfWork.CompleteAsync();
+            }
+            else {
+                try
+                {
+                    await _unitOfWork.ShoppingCart.AddAsync(cart);
+                    await _unitOfWork.CompleteAsync();
+                    TempData["success"] = "cart added successfully";
+                }
+                catch (DbUpdateException ex)
+                {
+                    TempData["Error"] = ex.Message;
+
+                }
+            }
 
 
-        //public IActionResult Privacy()
-        //{
-        //    return View();
-        //}
+            return RedirectToAction(nameof(HomeController.Index));
+        }
+          
+           
 
-        //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        //public IActionResult Error()
-        //{
-        //    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        //}
+
+        
     }
 }

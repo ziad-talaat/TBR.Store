@@ -21,13 +21,16 @@ namespace TBL.EF.Repositories
 
         public IBaseRepository<Company> Company { get; private set; }
 
+        public IBaseRepository<ShoppingCart> ShoppingCart { get; private set; }
+
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
             Category=new CategoryRepository(_context) ;
             Products = new ProductRepoistory(_context);
             User=new BaseRepository<ApplicationUser>(_context);
-            Company=new BaseRepository<Company>(_context);  
+            Company=new BaseRepository<Company>(_context);
+            ShoppingCart = new BaseRepository<ShoppingCart>(_context);
         }
        
 

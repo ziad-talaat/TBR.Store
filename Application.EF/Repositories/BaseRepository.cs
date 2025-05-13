@@ -38,6 +38,16 @@ namespace TBL.EF.Repositories
             return await query.ToListAsync();
         }
 
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> filter, bool track)
+        {
+            IQueryable<T> query = GetQuery();
+            if (track == false)
+            {
+                query = query.AsNoTracking();
+            }
+            return await query.Where(filter).ToListAsync();
+        }
+
         public async Task<T?> GetOneAsync<KEY>(KEY identifier)
         {
            T? item=await  _context.Set<T>().FindAsync(identifier);
@@ -89,6 +99,23 @@ namespace TBL.EF.Repositories
                 query = query.AsNoTracking();
             }
             return  await query.FirstOrDefaultAsync(filter);
+        }
+
+        public async Task<T?> GetSpecific(Expression<Func<T, bool>> filter, bool track, string[] includes)
+        {
+            IQueryable<T> query = GetQuery();
+            if (track == false)
+            {
+                query = query.AsNoTracking();
+            }
+            if (includes != null)
+            {
+                foreach(var include in includes)
+                {
+                    query=query.Include(include);
+                }
+            }
+            return await query.FirstOrDefaultAsync(filter);
         }
 
         public void Remove(T item)

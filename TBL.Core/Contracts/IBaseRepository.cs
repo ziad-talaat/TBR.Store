@@ -10,12 +10,14 @@ namespace TBL.Core.Contracts
 {
     public interface IBaseRepository<T>where T:class
     {
+        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T,bool>>filter,bool track);
         Task<IEnumerable<T>> GetAllAsync();
         Task<IEnumerable<T>> GetAllAsync(bool track);
         Task<T?> GetOneAsync<KEY>(KEY identifier);
         Task<T?> GetOneAsync<KEY>(KEY identifier,bool track);
         Task<T?> GetSpecific(Expression<Func<T,bool>>filter);
         Task<T?> GetSpecific(Expression<Func<T,bool>>filter,bool track);
+        Task<T?> GetSpecific(Expression<Func<T,bool>>filter,bool track, string[]includes);
         Task AddAsync(T item);
         //Task UpdateAsync(T item);
         void Remove(T item);
