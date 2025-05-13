@@ -26,5 +26,11 @@ namespace TBL.Core.ViewModel
 
         public string? Role { get; set; }
         public IEnumerable<SelectListItem>? RolesItems { get; set; }
+
+         public int? CompanyId { get; set; }
+        public IEnumerable<SelectListItem>? CompanyItems { get; set; }
+
+
+
     }
 }

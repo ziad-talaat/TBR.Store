@@ -17,6 +17,9 @@ namespace TBL.Core.Models
         public string State { get; set; }
         public string PostalCode { get; set; }
         [DataType(DataType.PhoneNumber)]
-        public int PhoneNumber { get; set; }
+        [RegularExpression(@"^\d{11}$", ErrorMessage = "Phone number must be exactly 11 digits.")]
+        public string  PhoneNumber { get; set; }
+
+        public ICollection<ApplicationUser>Users { get; set; }=new List<ApplicationUser>();
     }
 }

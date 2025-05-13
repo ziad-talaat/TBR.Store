@@ -31,6 +31,7 @@ namespace TBR.Store.Areas.Customer.Controllers
             ViewBag.CurrentSearchValue = searchValue;
             ViewBag.CurrentSortBy = sortBy;
             ViewBag.CurrentOrder = isAssending;
+            ViewBag.CurrentCategory = value;
             ViewBag.SearchItems = new List<SelectListItem>
             {
               new SelectListItem { Value = nameof(Product.Title), Text = "Title" , Selected = (searchBy == nameof(Product.Title))},

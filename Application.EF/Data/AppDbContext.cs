@@ -13,6 +13,7 @@ namespace Application.EF.Data
         public DbSet<Category> Category { get; set; }
         public DbSet<Product> Product { get; set; }
         public DbSet<Company> Company { get; set; }
+        public DbSet<UserProduct_Voting> UserProduct_Voting { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -23,7 +24,11 @@ namespace Application.EF.Data
                 .HasForeignKey(x => x.CategoryId).IsRequired(true).OnDelete(DeleteBehavior.Cascade);
 
 
-
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(x => x.Company)
+                .WithMany(x => x.Users)
+                .HasForeignKey(x => x.CompanyId)
+                .IsRequired(false);
 
 
             modelBuilder.Entity<ApplicationUser>().HasIndex(x => x.UserName).IsUnique();

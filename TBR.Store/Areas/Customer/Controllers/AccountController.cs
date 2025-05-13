@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using TBL.Core.Contracts;
 using TBL.Core.Contracts.ServiceContracts;
 using TBL.Core.Enums;
 using TBL.Core.Models;
@@ -16,29 +17,30 @@ namespace TBR.Store.Areas.Customer.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUnitOfWork _unitOfWork;
         public AccountController(IAccountService accountService, 
             SignInManager<ApplicationUser> applicationUser,
              RoleManager<IdentityRole> roleManager,
-             UserManager<ApplicationUser> userManager)
+             UserManager<ApplicationUser> userManager,
+              IUnitOfWork unitOfWork)
         {
             _accountService = accountService;
             _signInManager = applicationUser;
             _roleManager = roleManager;
             _userManager = userManager;
+            _unitOfWork = unitOfWork;
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Register()
         {
-            var roles = await _roleManager.Roles.Select(x => new SelectListItem
-            {
-                Text = x.Name,
-                Value = x.Name
-            }).ToListAsync();
+           
 
             var viewModel = new RegisterVM
             {
-              RolesItems=roles
+                RolesItems = await GetRolesList(),
+                CompanyItems =await  GetCompanyList()
             };
 
             return View(viewModel);
@@ -95,22 +97,19 @@ namespace TBR.Store.Areas.Customer.Controllers
                     }
                 }
             }
-            var roles = await _roleManager.Roles.Select(x => new SelectListItem
-            {
-                Text = x.Name,
-                Value = x.Name
-            }).ToListAsync();
+         
 
             var viewModel = new RegisterVM
             {
-                RolesItems = roles
+                RolesItems = await GetRolesList(),
+                CompanyItems= await GetCompanyList()
             };
 
             return View(viewModel);
 
 
-
         }
+
 
         [HttpGet]
         public IActionResult Login()
@@ -144,6 +143,28 @@ namespace TBR.Store.Areas.Customer.Controllers
         public IActionResult AccessDenied()
         {
             return View();
+        }
+
+
+        [NonAction]
+        private async Task<List<SelectListItem>> GetCompanyList()
+        {
+            var companies = await _unitOfWork.Company.GetAllAsync(false);
+            var companiesNames = companies.ToList().Select(x => new SelectListItem
+            {
+                Text = x.Name,
+                Value = x.Id.ToString()
+            }).ToList();
+            return companiesNames;
+        }
+        [NonAction]
+        private async Task<List<SelectListItem>> GetRolesList()
+        {
+            return await _roleManager.Roles.Select(x => new SelectListItem
+            {
+                Text = x.Name,
+                Value = x.Name
+            }).ToListAsync();
         }
 
     }

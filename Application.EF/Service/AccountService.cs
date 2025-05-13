@@ -65,6 +65,7 @@ namespace TBL.EF.Service
                 UserName = registerVM.UserName,
                 Email = registerVM.Email,
                 Address = registerVM.Address,
+                CompanyId= registerVM.CompanyId
             };
 
 
