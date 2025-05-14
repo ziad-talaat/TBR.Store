@@ -112,20 +112,22 @@ namespace TBR.Store.Areas.Customer.Controllers
 
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string returnUrl=null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginVM loginVM)
+        public async Task<IActionResult> Login(LoginVM loginVM,string url=null)
         {
+            url= url ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
                 var result = await _accountService.Login(loginVM);
                 if (result.Succeeded)
                 {
-                    return Redirect("~/");
+                    return LocalRedirect(url);
                 }
 
                 ModelState.AddModelError("", "Invalid login attempt.");

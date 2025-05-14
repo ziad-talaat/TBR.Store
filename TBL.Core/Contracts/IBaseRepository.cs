@@ -11,6 +11,7 @@ namespace TBL.Core.Contracts
     public interface IBaseRepository<T>where T:class
     {
         Task<IEnumerable<T>> GetAllAsync(Expression<Func<T,bool>>filter,bool track);
+        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> filter, bool track, string[] includes);
         Task<IEnumerable<T>> GetAllAsync();
         Task<IEnumerable<T>> GetAllAsync(bool track);
         Task<T?> GetOneAsync<KEY>(KEY identifier);

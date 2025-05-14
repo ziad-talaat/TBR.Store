@@ -28,5 +28,8 @@ namespace TBL.Core.Models
         [ValidateNever]
         public ApplicationUser User { get; set; }
 
+
+        [NotMapped]
+        public double Price{ get; set; }
     }
 }
