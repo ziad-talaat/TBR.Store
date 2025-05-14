@@ -11,6 +11,8 @@ namespace Application.EF.Data
             
         }
         public DbSet<Category> Category { get; set; }
+        public DbSet<OrderHeader> OrderHeader { get; set; }
+        public DbSet<OrderDetails> OrderDetails { get; set; }
         public DbSet<Product> Product { get; set; }
         public DbSet<Company> Company { get; set; }
         public DbSet<UserProduct_Voting> UserProduct_Voting { get; set; }
@@ -56,6 +58,30 @@ namespace Application.EF.Data
             modelBuilder.Entity<ApplicationUser>()
              .Property(u => u.Id)
              .HasDefaultValueSql("NEWID()");
+
+
+            modelBuilder.Entity<OrderHeader>()
+                .HasOne(x => x.User)
+                .WithMany(x => x.OrderHeaders)
+                .HasForeignKey(x => x.UserId)
+                .IsRequired(true)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<OrderHeader>()
+               .HasMany(x=>x.OrderDetails)
+               .WithOne(x=>x.OrderHeader)
+               .HasForeignKey(x=>x.OrderHeaderId)
+               .IsRequired(true)
+               .OnDelete(DeleteBehavior.Cascade);
+
+             modelBuilder.Entity<OrderDetails>()
+               .HasOne(x=>x.Product)
+               .WithMany(x=>x.OrderDetails)
+               .HasForeignKey(x=>x.ProductId)
+               .IsRequired(true)
+               .OnDelete(DeleteBehavior.Cascade);
+
+
         }
     }
 }

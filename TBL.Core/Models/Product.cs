@@ -53,5 +53,6 @@ namespace TBL.Core.Models
 
         public ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
         public ICollection<UserProduct_Voting> UserProduct_Voting { get; set; } = new List<UserProduct_Voting>();
+        public ICollection<OrderDetails> OrderDetails { get; set; } = new List<OrderDetails>();
     }
 }

@@ -23,7 +23,11 @@ namespace TBL.EF.Repositories
 
         public IBaseRepository<ShoppingCart> ShoppingCart { get; private set; }
 
-        public UnitOfWork(AppDbContext context)
+        public IBaseRepository<OrderDetails> OrderDetails { get; private set; }
+
+		public IOrderHeaderRepository OrderHeader { get; private set; }
+
+		public UnitOfWork(AppDbContext context)
         {
             _context = context;
             Category=new CategoryRepository(_context) ;
@@ -31,6 +35,8 @@ namespace TBL.EF.Repositories
             User=new BaseRepository<ApplicationUser>(_context);
             Company=new BaseRepository<Company>(_context);
             ShoppingCart = new BaseRepository<ShoppingCart>(_context);
+            OrderHeader =new OrderHeaderRepository(_context);
+            OrderDetails = new BaseRepository<OrderDetails>(_context);
         }
        
 

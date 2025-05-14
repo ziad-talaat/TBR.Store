@@ -1,8 +1,10 @@
 using Application.EF.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using TBL.Core.Contracts;
 using TBL.Core.Contracts.ServiceContracts;
+using TBL.Core.Enums;
 using TBL.Core.Models;
 using TBL.EF.Repositories;
 using TBL.EF.Service;
@@ -18,6 +20,8 @@ namespace TBR.Store
 
             builder.Services.AddControllersWithViews();
 
+            builder.Services.Configure<StripeSetting>(builder.Configuration.GetSection("Stripe"));
+
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("ConStr"));
@@ -26,7 +30,7 @@ namespace TBR.Store
                 .AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
                 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IAccountService,AccountService>();
+            builder.Services.AddScoped<IAccountService, TBL.EF.Service.AccountService>();
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
@@ -42,6 +46,8 @@ namespace TBR.Store
                 app.UseExceptionHandler("/Home/Error");
             }
             app.UseStaticFiles();
+
+            StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
             app.UseRouting();
 

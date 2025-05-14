@@ -11,7 +11,9 @@ namespace TBL.Core.Contracts
     {
        ICategory Category { get; }
         IProductRepository Products { get; }
+        IOrderHeaderRepository OrderHeader { get; }
         IBaseRepository<ApplicationUser> User { get; }
+        IBaseRepository<OrderDetails> OrderDetails { get; }
         IBaseRepository<ShoppingCart> ShoppingCart { get; }
         IBaseRepository<Company> Company { get; }
         Task CompleteAsync();
