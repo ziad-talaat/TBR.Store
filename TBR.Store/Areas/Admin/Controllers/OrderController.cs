@@ -14,8 +14,7 @@ namespace TBR.Store.Areas.Admin.Controllers
 {
 
      [Area("Admin")]
-    [Authorize] 
-    
+    [Authorize]  
     public class OrderController : Controller
 	{
 

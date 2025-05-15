@@ -17,6 +17,13 @@ namespace TBL.Core.ViewModel
         [Required(ErrorMessage = "Can't be blank")]
         public string PostalCode { get; set; }
 
+        [Required(ErrorMessage ="must provide a number")]
+        [DataType(DataType.PhoneNumber)]
+        [RegularExpression(@"^\d{11}$", ErrorMessage = "Phone number must be exactly 11 digits.")]
+        public string PhoneNumber { get; set; }
+
+        public string? ImageUrl { get; set; }
+
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; }

@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using TBL.Core.Contracts;
 using TBL.Core.Converter;
+using TBL.Core.Enums;
 using TBL.Core.Models;
 using TBL.Core.ViewModel;
 
@@ -101,6 +102,15 @@ namespace TBL.EF.Repositories
 
         private IQueryable<Product> BuildSortQuery(IQueryable<Product>query,string sortBy,bool isAssending = true)
         {
+            if (sortBy == "TopRated")
+            {
+                return isAssending
+                    ? query.OrderBy(p => p.UserProduct_Voting.Count(v => v.VoteType == Voting.UpVote) -
+                                         p.UserProduct_Voting.Count(v => v.VoteType == Voting.DownVote))
+                    : query.OrderByDescending(p => p.UserProduct_Voting.Count(v => v.VoteType == Voting.UpVote) -
+                                                   p.UserProduct_Voting.Count(v => v.VoteType == Voting.DownVote));
+            }
+
             var parameter = Expression.Parameter(typeof(Product), "x");
             var property = Expression.Property(parameter, sortBy);
             var propertyType = property.Type;

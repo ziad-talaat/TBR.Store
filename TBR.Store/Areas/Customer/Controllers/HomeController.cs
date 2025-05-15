@@ -30,6 +30,8 @@ namespace TBR.Store.Areas.Customer.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string ?searchBy,string?searchValue,string ?sortBy,string ?value ,bool isAssending=true,int pageNumber=1)
         {
+            
+
             Pagination<Product> pageDetails=  _unitOfWork.Products.GetAllSortedAndFilterdInPage(searchBy,searchValue,sortBy, value, isAssending,pageNumber);
             ViewBag.CurrentSearchBy = searchBy;
             ViewBag.CurrentSearchValue = searchValue;
@@ -46,7 +48,8 @@ namespace TBR.Store.Areas.Customer.Controllers
 
 
 
-           var categoriesNames=await _unitOfWork.Category.GetCategoriesName();
+
+            var categoriesNames =await _unitOfWork.Category.GetCategoriesName();
 
             ViewBag.FilterCategories = categoriesNames.Select(x => new SelectListItem
             {

@@ -95,13 +95,10 @@
             theme: 'snow'
         });
 
-        // Get the hidden textarea
         var descriptionInput = document.querySelector('#description');
 
-        // Set initial value from textarea
         quill.root.innerHTML = descriptionInput.value;
 
-        // Listen for changes in Quill and update the textarea
         quill.on('text-change', function () {
             descriptionInput.value = quill.root.innerHTML;
         });

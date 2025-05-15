@@ -15,6 +15,7 @@ namespace TBL.Core.Models
         public string Address { get; set; }
         [Required(ErrorMessage ="can't be blank")]
         public string PostalCode { get; set; }
+        public string? ImageUrl { get; set; }
 
         public int? CompanyId { get; set; }
         [ValidateNever]

@@ -131,18 +131,18 @@
             const dislikeBtn = document.getElementById("dislikeBtn");
             const voteInput = document.getElementById("voteType");
 
-            const form = likeBtn.closest("form"); // Assuming both buttons are in the same form
+            const form = likeBtn.closest("form"); 
 
             likeBtn.addEventListener("click", function (e) {
                 e.preventDefault();
-                voteInput.value = "0"; // Like = 0
+                voteInput.value = "0"; 
                 form.action = '@Url.Action("Vote", "Home")';
                 form.submit();
             });
 
             dislikeBtn.addEventListener("click", function (e) {
                 e.preventDefault();
-                voteInput.value = "1"; // Dislike = 1
+                voteInput.value = "1"; 
                 form.action = '@Url.Action("Vote", "Home")';
                 form.submit();
             });

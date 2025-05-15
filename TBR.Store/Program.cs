@@ -19,6 +19,7 @@ namespace TBR.Store
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllersWithViews();
+            builder.Services.AddSession();
 
             builder.Services.Configure<StripeSetting>(builder.Configuration.GetSection("Stripe"));
 
@@ -53,6 +54,7 @@ namespace TBR.Store
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseSession();
 
             app.MapControllerRoute(
                 name: "default",

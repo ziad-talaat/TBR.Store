@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 using TBL.Core.Contracts;
 using TBL.Core.Contracts.ServiceContracts;
 using TBL.Core.Enums;
 using TBL.Core.Models;
 using TBL.Core.ViewModel;
+using TBR.Store.Areas.Admin.Controllers;
 
 namespace TBR.Store.Areas.Customer.Controllers
 {
@@ -18,17 +21,20 @@ namespace TBR.Store.Areas.Customer.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IWebHostEnvironment _webHost;
         public AccountController(IAccountService accountService, 
             SignInManager<ApplicationUser> applicationUser,
              RoleManager<IdentityRole> roleManager,
              UserManager<ApplicationUser> userManager,
-              IUnitOfWork unitOfWork)
+              IUnitOfWork unitOfWork,
+               IWebHostEnvironment webHost)
         {
             _accountService = accountService;
             _signInManager = applicationUser;
             _roleManager = roleManager;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
+           _webHost= webHost;
         }
 
 
@@ -46,9 +52,16 @@ namespace TBR.Store.Areas.Customer.Controllers
             return View(viewModel);
         }
 
+
+      
+       
+
+
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterVM registerVM)
+        public async Task<IActionResult> Register(RegisterVM registerVM, IFormFile? file)
         {
             if (!await _roleManager.RoleExistsAsync(Roles.Role_Admin))
             {
@@ -80,9 +93,22 @@ namespace TBR.Store.Areas.Customer.Controllers
 
                 var result = tuple.Item1;
                 var user = tuple.Item2;
+                    string wwwRootPath = _webHost.WebRootPath;
 
                 if (result.Succeeded)
                 {
+                    if (file != null)
+                    {
+                        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file?.FileName);
+                        string productPath = Path.Combine(wwwRootPath, @"Images\Users");
+
+                        using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
+                        {
+                            await file.CopyToAsync(fileStream);
+                        }
+                        user.ImageUrl = @"/Images/Users/" + fileName;
+
+                    }
 
                     await _signInManager.SignInAsync(user, isPersistent: true);
                     await _userManager.AddToRoleAsync(user, registerVM.Role??Roles.Role_Customer);

@@ -7,7 +7,7 @@
 
 <h2>@ViewData["Title"]</h2>
 
-<form asp-action="Register" method="post" class="mt-4">
+<form asp-action="Register" method="post" class="mt-4" enctype="multipart/form-data">
     <div class="form-group">
         <label asp-for="UserName" class="control-label">Username</label>
         <input asp-for="UserName" class="form-control" />
@@ -32,6 +32,18 @@
         <span asp-validation-for="PostalCode" class="text-danger"></span>
     </div>
     <div class="form-group">
+        <label asp-for="PhoneNumber" class="control-label">PhoneNumber</label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="form-floating py-2 col-12">
+        <input name="file"  type="file" class="form-control border-0 shadow" />
+        <label asp-for="ImageUrl" class="ms-2"></label>
+        <span asp-validation-for="ImageUrl" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
         <label asp-for="Password" class="control-label">Password</label>
         <input asp-for="Password" class="form-control" type="password" />
         <span asp-validation-for="Password" class="text-danger"></span>
@@ -43,6 +55,10 @@
         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
     </div>
 
+
+    @if (User.IsInRole(Roles.Role_Admin))
+    {
+        
     <div class="form-group">
         <label asp-for="Role" class="control-label">Role</label>
         <select asp-for="Role" asp-items="Model.RolesItems" class="form-control">
@@ -58,6 +74,8 @@
         </select>
         <span asp-validation-for="CompanyId" class="text-danger"></span>
     </div>
+    }
+
 
     <div class="form-group mt-3">
         <button type="submit" class="btn btn-primary w-100">Register</button>

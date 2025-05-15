@@ -11,5 +11,6 @@ namespace TBL.Core.Contracts
     public interface IVoting:IBaseRepository<UserProduct_Voting>
     {
         Task<UserProduct_Voting?> GetSpecificVote(string userId, int productId);
+        Task<List<Product>> TopVoted();
     }
 }

@@ -66,7 +66,8 @@ namespace TBL.EF.Service
                 Email = registerVM.Email,
                 Address = registerVM.Address,
                 CompanyId= registerVM.CompanyId,
-                PostalCode=registerVM.PostalCode
+                PostalCode=registerVM.PostalCode,
+                PhoneNumber=registerVM.PhoneNumber,
                 
             };
 
