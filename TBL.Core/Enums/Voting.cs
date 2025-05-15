@@ -8,7 +8,8 @@ namespace TBL.Core.Enums
 {
     public enum Voting
     {
-        UpVote,
-        DownVote
+        None = -1,
+        UpVote=0,
+        DownVote=1
     }
 }

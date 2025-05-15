@@ -1,6 +1,7 @@
 ﻿@model ShoppingCart
 <form method="post">
     <input asp-for="ProductId" type="hidden" />
+    <input type="hidden" id="voteType" name="voteType"  />
     <div class="card shadow border-0 mt-4">
         <div class="card-header bg-secondary bg-gradient text-light py-4">
             <div class="row">
@@ -23,6 +24,8 @@
                     <div class="col-12 col-lg-3 offset-lg-1 text-center mb-3">
                         <img src="@Model.Product.ImageURL" width="100%" class="rounded" />
                     </div>
+
+                    
                     <div class="col-12 col-lg-6 offset-lg-1">
 
                         <div class="col-12 col-md-6 pb-4">
@@ -84,6 +87,18 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="row mb-3">
+                                <div class="col-6 col-md-3">
+                                    <button type="submit" asp-action="Vote" id="likeBtn" value="@ViewBag.CurrentVote" class="btn btn-outline-success w-100">
+                                        <i class="bi bi-hand-thumbs-up-fill"></i> Like
+                                    </button>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <button type="submit" asp-action="Vote" id="dislikeBtn" value="@ViewBag.CurrentVote" class="btn btn-outline-danger w-100">
+                                        <i class="bi bi-hand-thumbs-down-fill"></i> Dislike
+                                    </button>
+                                </div>
+                            </div>
                             <div class="col-12 col-md-6 pb-1">
                                 <button type="submit" 
                                         class="btn btn-primary bg-gradient  w-100 py-2 text-uppercase fw-semibold">
@@ -98,3 +113,36 @@
         </div>
     </div>
 </form>
+
+@section Scripts{
+    <script>
+        const likeBtn = document.getElementById("likeBtn");
+        const dislikeBtn = document.getElementById("dislikeBtn");
+        const voteInput = document.getElementById("voteType");
+
+        likeBtn.addEventListener("click", () => {
+            const current = voteInput.value;
+            if (current === "0") {
+                voteInput.value = -1;
+                likeBtn.classList.remove("active");
+            } else {
+                voteInput.value = 0;
+                likeBtn.classList.add("active");
+                dislikeBtn.classList.remove("active");
+            }
+        });
+
+        dislikeBtn.addEventListener("click", () => {
+            const current = voteInput.value;
+            if (current === "1") {
+                voteInput.value = -1;
+                dislikeBtn.classList.remove("active");
+            } else {
+                voteInput.value = 1;
+                dislikeBtn.classList.add("active");
+                likeBtn.classList.remove("active");
+            }
+        });
+    </script>
+
+}

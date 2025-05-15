@@ -27,7 +27,9 @@ namespace TBL.EF.Repositories
 
 		public IOrderHeaderRepository OrderHeader { get; private set; }
 
-		public UnitOfWork(AppDbContext context)
+        public IVoting Vote { get; private set; }
+
+        public UnitOfWork(AppDbContext context)
         {
             _context = context;
             Category=new CategoryRepository(_context) ;
@@ -37,6 +39,7 @@ namespace TBL.EF.Repositories
             ShoppingCart = new BaseRepository<ShoppingCart>(_context);
             OrderHeader =new OrderHeaderRepository(_context);
             OrderDetails = new BaseRepository<OrderDetails>(_context);
+            Vote=new VotingRepository(_context);
         }
        
 

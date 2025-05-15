@@ -12,6 +12,7 @@ namespace TBL.Core.Contracts
        ICategory Category { get; }
         IProductRepository Products { get; }
         IOrderHeaderRepository OrderHeader { get; }
+        IVoting Vote { get; }
         IBaseRepository<ApplicationUser> User { get; }
         IBaseRepository<OrderDetails> OrderDetails { get; }
         IBaseRepository<ShoppingCart> ShoppingCart { get; }

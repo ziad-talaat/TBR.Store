@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using TBL.Core.Enums;
 
 namespace TBR.Store.Areas.Customer.Controllers
 {
@@ -58,10 +59,15 @@ namespace TBR.Store.Areas.Customer.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Details(int id)
         {
             Product ?product = await _unitOfWork.Products.GetSpecific(x => x.Id == id, false, new[] {nameof(Product.Category)});
-            if(product==null)
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var vote = await _unitOfWork.Vote.GetSpecificVote(userId, id);
+
+            if (product==null)
             {
                 TempData["Error"] = "no such product ";
                 return RedirectToAction(nameof(HomeController.Index));
@@ -72,6 +78,7 @@ namespace TBR.Store.Areas.Customer.Controllers
                 Count =1,
                 ProductId=id,
             };
+
                 return View(cart);
         }
           
@@ -110,9 +117,66 @@ namespace TBR.Store.Areas.Customer.Controllers
 
             return RedirectToAction(nameof(HomeController.Index));
         }
-          
-           
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> Vote(Voting voteType,int ProductId)
+        {
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+
+
+            var existingVote = await _unitOfWork.Vote.GetSpecificVote(userId, ProductId);
+
+            if (existingVote != null)
+            {
+                if (voteType == Voting.None)
+                {
+                    _unitOfWork.Vote.Remove(existingVote);
+
+                }
+                else
+                {
+                    existingVote.VoteType = voteType;
+                    existingVote.VotingTime = DateTime.Now;
+                    _unitOfWork.Vote.Update(existingVote);
+
+                }
+                await _unitOfWork.CompleteAsync();
+
+            }
+
+            else
+            {
+                UserProduct_Voting newVote = new UserProduct_Voting()
+                {
+                    ProductId = ProductId,
+                    UserId = userId,
+                    VotingTime = DateTime.Now,
+                    VoteType = voteType,
+                };
+                try
+                {
+                   await  _unitOfWork.Vote.AddAsync(newVote);
+                    await _unitOfWork.CompleteAsync();
+                }
+                catch(DbUpdateException ex)
+                {
+                    TempData["Error"] = "some error while voting try later";
+                }
+            }
+
+
+            return RedirectToAction("Details",  new { id = ProductId });
+        }
 
         
     }
