@@ -91,6 +91,7 @@
                                 <div class="col-6 col-md-3">
                                     <form asp-action="Vote" method="post">
                                         <input asp-for="ProductId" type="hidden" />
+                                        @await Component.InvokeAsync("UpVote", new { productId = Model.ProductId })
                                         <input type="hidden" name="voteType" value="0" />
                                         <button type="submit" id="likeBtn" class="btn btn-outline-success w-100 @(ViewBag.CurrentVote == "UpVote" ? "active" : "")">
                                             <i class="bi bi-hand-thumbs-up-fill"></i> Like
@@ -102,6 +103,7 @@
                                 <div class="col-6 col-md-3">
                                     <form asp-action="Vote" method="post">
                                         <input asp-for="ProductId" type="hidden" />
+                                        @await Component.InvokeAsync("DownVote", new { productId =Model.ProductId})
                                     <input type="hidden" name="voteType" value="1" />
                                         <button id="dislikeBtn"  type="submit" class="btn btn-outline-danger w-100 @(ViewBag.CurrentVote == "DownVote" ? "active" : "")">
                                         <i class="bi bi-hand-thumbs-down-fill"></i> Dislike
