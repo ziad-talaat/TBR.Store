@@ -38,9 +38,13 @@
                         <li class="nav-item">
                                     <a class="nav-link text-bg-light" style="color:white" asp-area="Customer" asp-controller="Home" asp-action="Index">Home</a>
                                 </li>
+                             
+                         @if (User.Identity.IsAuthenticated){
                         <li class="nav-item">
-                                    <a class="nav-link text-bg-light" style="color:white" asp-area="Customer" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                                <a class="nav-link text-bg-light" style="color:white" asp-area="Admin" asp-controller="Order" asp-action="Index">ManageOrder</a>
                         </li>
+                                }
+                             
 
                         @if(User.IsInRole(Roles.Role_Admin))
                         {
@@ -65,12 +69,15 @@
                                     </ul>
                                 </li>
                         }
-                                <li class="nav-item">
-                                    <a class="nav-link text-bg-light" asp-area="Customer" asp-controller="Cart" asp-action="Index">
-                                        <i class="bi bi-cart"></i>&nbsp;()
-                                    </a>
-                                </li>
-                    </ul>
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-bg-light" asp-area="Customer" asp-controller="Cart" asp-action="Index">
+                                            <i class="bi bi-cart"></i>&nbsp;()
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
                         
                  </div>
                        
@@ -96,6 +103,8 @@
     
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

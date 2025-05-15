@@ -119,8 +119,15 @@ namespace TBR.Store.Areas.Customer.Controllers
 		{
 			var claimIdentity = (ClaimsIdentity)User.Identity;
 			var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            orderInfo.OrderHeader.UserId = userId;
+            orderInfo.CartList = await _unitOfWork.ShoppingCart.GetAllAsync(x => x.UserId == userId, true, new[] {nameof(ShoppingCart.Product)});
 
-            orderInfo.CartList = await _unitOfWork.ShoppingCart.GetAllAsync(x => x.UserId == userId, false, new[] {nameof(ShoppingCart.Product)});
+            if (string.IsNullOrEmpty(orderInfo.OrderHeader.PhoneNumber))
+            {
+                ModelState.AddModelError("PhoneNumber", "Phone Number can't be blank");
+                return RedirectToAction("Summary", orderInfo);
+            }
+
             orderInfo.OrderHeader.OrderDate = DateTime.Now;
             orderInfo.OrderHeader.UserId = userId;
             orderInfo.OrderHeader.User=await _unitOfWork.User.GetSpecific(x=>x.Id==userId);
@@ -160,45 +167,45 @@ namespace TBR.Store.Areas.Customer.Controllers
             if (orderInfo.OrderHeader.User.CompanyId.GetValueOrDefault() == 0)
 			{
 
-				#region stripeLogic
-				//var domain = "http://localhost:34196/";
-				//var options = new SessionCreateOptions
-				//{
-				//	SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={orderInfo.OrderHeader.Id}",
-				//	CancelUrl = domain + "customer/cart/index",
-				//	LineItems = new List<SessionLineItemOptions>(),
-				//	Mode = "payment",
-				//};
+                #region stripeLogic
+                //var domain = "http://localhost:34196/";
+                //var options = new SessionCreateOptions
+                //{
+                //	SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={orderInfo.OrderHeader.Id}",
+                //	CancelUrl = domain + "customer/cart/index",
+                //	LineItems = new List<SessionLineItemOptions>(),
+                //	Mode = "payment",
+                //};
 
-				//foreach (var item in orderInfo.CartList)
-				//{
-				//	var sessionLineItem = new SessionLineItemOptions
-				//	{
-				//		PriceData = new SessionLineItemPriceDataOptions
-				//		{
-				//			UnitAmount = (long)(item.Price * 100), // $20.50 => 2050
-				//			Currency = "usd",
-				//			ProductData = new SessionLineItemPriceDataProductDataOptions
-				//			{
-				//				Name = item.Product.Title
-				//			}
-				//		},
-				//		Quantity = item.Count
-				//	};
-				//	options.LineItems.Add(sessionLineItem);
-				//}
+                //foreach (var item in orderInfo.CartList)
+                //{
+                //	var sessionLineItem = new SessionLineItemOptions
+                //	{
+                //		PriceData = new SessionLineItemPriceDataOptions
+                //		{
+                //			UnitAmount = (long)(item.Price * 100), // $20.50 => 2050
+                //			Currency = "usd",
+                //			ProductData = new SessionLineItemPriceDataProductDataOptions
+                //			{
+                //				Name = item.Product.Title
+                //			}
+                //		},
+                //		Quantity = item.Count
+                //	};
+                //	options.LineItems.Add(sessionLineItem);
+                //}
 
 
-				//var service = new SessionService();
-				//Session session = service.Create(options);
-				//await _unitOfWork.OrderHeader.UpdateStrpePaymentId(orderInfo.OrderHeader.Id, session.Id, session.PaymentIntentId);
-				//await _unitOfWork.CompleteAsync();
-				//Response.Headers.Add("Location", session.Url);
-				//return new StatusCodeResult(303);
-				#endregion
-			}
+                //var service = new SessionService();
+                //Session session = service.Create(options);
+                //await _unitOfWork.OrderHeader.UpdateStrpePaymentId(orderInfo.OrderHeader.Id, session.Id, session.PaymentIntentId);
+                //await _unitOfWork.CompleteAsync();
+                //Response.Headers.Add("Location", session.Url);
+                //return new StatusCodeResult(303);
+                #endregion
+            }
 
-			return RedirectToAction(nameof(OrderConfirmation), new {id=orderInfo.OrderHeader.Id});
+            return RedirectToAction("OrderConfirmation", new {id=orderInfo.OrderHeader.Id});
 		}
 
 

@@ -14,6 +14,8 @@ namespace TBL.Core.ViewModel
         public string Email { get; set; }
 
         public string Address { get; set; }
+        [Required(ErrorMessage = "Can't be blank")]
+        public string PostalCode { get; set; }
 
         [Required]
         [DataType(DataType.Password)]

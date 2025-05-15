@@ -62,6 +62,21 @@ namespace TBL.EF.Repositories
             return await query.Where(filter).ToListAsync();
         }
 
+        public async Task<IEnumerable<T>> GetAllAsync(bool track, string[] includes)
+        {
+            IQueryable<T> query = GetQuery();
+            if (track == false)
+            {
+                query = query.AsNoTracking();
+            }
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                    query = query.Include(include);
+            }
+            return await query.ToListAsync();
+        }
+
         public async Task<T?> GetOneAsync<KEY>(KEY identifier)
         {
            T? item=await  _context.Set<T>().FindAsync(identifier);

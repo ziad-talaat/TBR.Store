@@ -13,6 +13,7 @@ namespace TBL.Core.Enums
 		public const string StatusProcessing = "Processing";
 		public const string StatusCancelled = "Cancelled";
 		public const string StatusRefunded = "Refunded";
+		public const string StatusShipped = "StatusShipped";
 
 		
 		public const string PaymentStatusPending = "Pending";

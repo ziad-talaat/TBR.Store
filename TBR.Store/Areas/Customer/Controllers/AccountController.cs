@@ -83,6 +83,7 @@ namespace TBR.Store.Areas.Customer.Controllers
 
                 if (result.Succeeded)
                 {
+
                     await _signInManager.SignInAsync(user, isPersistent: true);
                     await _userManager.AddToRoleAsync(user, registerVM.Role??Roles.Role_Customer);
 

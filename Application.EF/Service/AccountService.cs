@@ -65,12 +65,15 @@ namespace TBL.EF.Service
                 UserName = registerVM.UserName,
                 Email = registerVM.Email,
                 Address = registerVM.Address,
-                CompanyId= registerVM.CompanyId
+                CompanyId= registerVM.CompanyId,
+                PostalCode=registerVM.PostalCode
+                
             };
 
 
-            var result= await _userManager.CreateAsync(Newuser, registerVM.Password);
-
+            
+                var result = await _userManager.CreateAsync(Newuser, registerVM.Password);
+            
             return new Tuple<IdentityResult, ApplicationUser?>(result, Newuser);
         }
     }
