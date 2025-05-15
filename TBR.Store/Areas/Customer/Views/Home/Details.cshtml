@@ -89,15 +89,26 @@
                         <div class="row">
                             <div class="row mb-3">
                                 <div class="col-6 col-md-3">
-                                    <button type="submit" asp-action="Vote" id="likeBtn" value="@ViewBag.CurrentVote" class="btn btn-outline-success w-100">
-                                        <i class="bi bi-hand-thumbs-up-fill"></i> Like
-                                    </button>
+                                    <form asp-action="Vote" method="post">
+                                        <input asp-for="ProductId" type="hidden" />
+                                        <input type="hidden" name="voteType" value="0" />
+                                        <button type="submit" id="likeBtn" class="btn btn-outline-success w-100 @(ViewBag.CurrentVote == "UpVote" ? "active" : "")">
+                                            <i class="bi bi-hand-thumbs-up-fill"></i> Like
+                                        </button>
+                                    </form>
+
+                                  
                                 </div>
                                 <div class="col-6 col-md-3">
-                                    <button type="submit" asp-action="Vote" id="dislikeBtn" value="@ViewBag.CurrentVote" class="btn btn-outline-danger w-100">
+                                    <form asp-action="Vote" method="post">
+                                        <input asp-for="ProductId" type="hidden" />
+                                    <input type="hidden" name="voteType" value="1" />
+                                        <button id="dislikeBtn"  type="submit" class="btn btn-outline-danger w-100 @(ViewBag.CurrentVote == "DownVote" ? "active" : "")">
                                         <i class="bi bi-hand-thumbs-down-fill"></i> Dislike
                                     </button>
+                                  </form>
                                 </div>
+                              
                             </div>
                             <div class="col-12 col-md-6 pb-1">
                                 <button type="submit" 
@@ -113,36 +124,29 @@
         </div>
     </div>
 </form>
-
-@section Scripts{
+  @section Scripts {
     <script>
-        const likeBtn = document.getElementById("likeBtn");
-        const dislikeBtn = document.getElementById("dislikeBtn");
-        const voteInput = document.getElementById("voteType");
+        document.addEventListener("DOMContentLoaded", function () {
+            const likeBtn = document.getElementById("likeBtn");
+            const dislikeBtn = document.getElementById("dislikeBtn");
+            const voteInput = document.getElementById("voteType");
 
-        likeBtn.addEventListener("click", () => {
-            const current = voteInput.value;
-            if (current === "0") {
-                voteInput.value = -1;
-                likeBtn.classList.remove("active");
-            } else {
-                voteInput.value = 0;
-                likeBtn.classList.add("active");
-                dislikeBtn.classList.remove("active");
-            }
-        });
+            const form = likeBtn.closest("form"); // Assuming both buttons are in the same form
 
-        dislikeBtn.addEventListener("click", () => {
-            const current = voteInput.value;
-            if (current === "1") {
-                voteInput.value = -1;
-                dislikeBtn.classList.remove("active");
-            } else {
-                voteInput.value = 1;
-                dislikeBtn.classList.add("active");
-                likeBtn.classList.remove("active");
-            }
+            likeBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                voteInput.value = "0"; // Like = 0
+                form.action = '@Url.Action("Vote", "Home")';
+                form.submit();
+            });
+
+            dislikeBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                voteInput.value = "1"; // Dislike = 1
+                form.action = '@Url.Action("Vote", "Home")';
+                form.submit();
+            });
         });
     </script>
-
 }
+

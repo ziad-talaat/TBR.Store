@@ -44,6 +44,8 @@ namespace TBR.Store.Areas.Customer.Controllers
               new SelectListItem { Value = nameof(Product.Price), Text = "Price",Selected = (searchBy == nameof(Product.Price)) },
             };
 
+
+
            var categoriesNames=await _unitOfWork.Category.GetCategoriesName();
 
             ViewBag.FilterCategories = categoriesNames.Select(x => new SelectListItem
@@ -66,6 +68,9 @@ namespace TBR.Store.Areas.Customer.Controllers
             var claimIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var vote = await _unitOfWork.Vote.GetSpecificVote(userId, id);
+
+           string voteType = vote?.VoteType.ToString();
+            ViewBag.CurrentVote= voteType;
 
             if (product==null)
             {
@@ -118,7 +123,6 @@ namespace TBR.Store.Areas.Customer.Controllers
             return RedirectToAction(nameof(HomeController.Index));
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -138,7 +142,7 @@ namespace TBR.Store.Areas.Customer.Controllers
 
             if (existingVote != null)
             {
-                if (voteType == Voting.None)
+                if (voteType == existingVote.VoteType)
                 {
                     _unitOfWork.Vote.Remove(existingVote);
 
