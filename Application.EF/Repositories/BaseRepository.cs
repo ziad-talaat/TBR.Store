@@ -1,4 +1,5 @@
 ﻿using Application.EF.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using TBL.Core.Contracts;
+using TBL.Core.Models;
 
 namespace TBL.EF.Repositories
 {
@@ -61,6 +63,35 @@ namespace TBL.EF.Repositories
             }
             return await query.Where(filter).ToListAsync();
         }
+
+
+        public async Task<IEnumerable<T>> GetAll(Func<T,Task<bool>> filter, bool track, string[] includes)
+        {
+            IQueryable<T> query = GetQuery();
+            if (track == false)
+            {
+                query = query.AsNoTracking();
+            }
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                    query = query.Include(include);
+            }
+
+            var allUsers = await query.ToListAsync();
+            var result = new List<T>();
+            foreach (var user in allUsers)
+            {
+                if (await filter(user))
+                {
+                    result.Add(user);
+                }
+            }
+
+            return result;
+        }
+
+
 
         public async Task<IEnumerable<T>> GetAllAsync(bool track, string[] includes)
         {

@@ -63,14 +63,7 @@ namespace TBR.Store.Areas.Customer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterVM registerVM, IFormFile? file)
         {
-            if (!await _roleManager.RoleExistsAsync(Roles.Role_Admin))
-            {
-                await  _roleManager.CreateAsync(new IdentityRole(Roles.Role_Customer));
-                await _roleManager.CreateAsync(new IdentityRole(Roles.Role_Employee));
-               await _roleManager.CreateAsync(new IdentityRole(Roles.Role_Admin));
-               await _roleManager.CreateAsync(new IdentityRole(Roles.Role_Company));
-            }
-               
+            
 
             if (ModelState.IsValid)
             {
@@ -155,6 +148,11 @@ namespace TBR.Store.Areas.Customer.Controllers
                 if (result.Succeeded)
                 {
                     return LocalRedirect(url);
+                }
+
+                if (result.IsLockedOut)
+                {
+                    return View("Locked");
                 }
 
                 ModelState.AddModelError("", "Invalid login attempt.");

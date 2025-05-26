@@ -14,6 +14,7 @@ namespace TBL.Core.Contracts
         Task<IEnumerable<T>> GetAllAsync(bool track, string[] includes);
         Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> filter, bool track, string[] includes);
         Task<IEnumerable<T>> GetAllAsync();
+        Task<IEnumerable<T>> GetAll(Func<T, Task<bool>> filter, bool track, string[] includes);
         Task<IEnumerable<T>> GetAllAsync(bool track);
         Task<T?> GetOneAsync<KEY>(KEY identifier);
         Task<T?> GetOneAsync<KEY>(KEY identifier,bool track);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace TBL.Core.Models
@@ -19,7 +20,7 @@ namespace TBL.Core.Models
         [DataType(DataType.PhoneNumber)]
         [RegularExpression(@"^\d{11}$", ErrorMessage = "Phone number must be exactly 11 digits.")]
         public string  PhoneNumber { get; set; }
-
+        [JsonIgnore]
         public ICollection<ApplicationUser>Users { get; set; }=new List<ApplicationUser>();
     }
 }

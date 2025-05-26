@@ -1,11 +1,13 @@
 using Application.EF.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Plugins;
 using Stripe;
 using TBL.Core.Contracts;
 using TBL.Core.Contracts.ServiceContracts;
 using TBL.Core.Enums;
 using TBL.Core.Models;
+using TBL.EF.DBIntializer;
 using TBL.EF.Repositories;
 using TBL.EF.Service;
 using static System.Net.WebRequestMethods;
@@ -14,7 +16,7 @@ namespace TBR.Store
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +34,7 @@ namespace TBR.Store
                 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IAccountService, TBL.EF.Service.AccountService>();
+            builder.Services.AddScoped<IDbIntializer, DbIntializer>();
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
@@ -55,11 +58,21 @@ namespace TBR.Store
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSession();
-
+            await SeedDataBase();
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
             app.Run();
+
+            async Task SeedDataBase()
+            {
+                using (var scope = app.Services.CreateScope())
+                {
+                   var  dbIntilaizer= scope.ServiceProvider.GetRequiredService<IDbIntializer>();
+
+                   await  dbIntilaizer.Intialize();
+                }
+            }
         }
     }
 }
