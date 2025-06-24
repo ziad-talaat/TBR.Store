@@ -26,7 +26,7 @@ function loadDataTable() {
                              <i class="bi bi-unlock-fill"></i> lock
                              </a>
                         </div>
-                        <a class="btn btn-danger text-white style="cursor:pointer;width:200px;">
+                        <a href=/admin/user/RoleManagment?userId=${data.id} class="btn btn-danger text-white style="cursor:pointer;width:200px;">
                             <i class="bi bi-pencil-square"></i> Permission
                         </a>
 
@@ -42,7 +42,7 @@ function loadDataTable() {
                              </a>
                         </div>
 
-                        <a class="btn btn-danger text-white style="cursor:pointer;width:200px;">
+                        <a  href=/admin/user/RoleManagment?userId=${data.id} class="btn btn-danger text-white style="cursor:pointer;width:200px;">
                             <i class="bi bi-pencil-square"></i> Permission
                         </a>
 

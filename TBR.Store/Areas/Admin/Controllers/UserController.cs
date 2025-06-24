@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TBL.Core.Contracts;
 using TBL.Core.Enums;
 using TBL.Core.Models;
+using TBL.Core.ViewModel;
+using TBL.EF.Repositories;
 
 namespace TBR.Store.Areas.Admin.Controllers
 {
@@ -15,10 +18,12 @@ namespace TBR.Store.Areas.Admin.Controllers
 
         private readonly IUnitOfWork _UnitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
-        public UserController(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public UserController(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _UnitOfWork = unitOfWork;
             _userManager = userManager;
+            _roleManager = roleManager; 
         }
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -92,6 +97,81 @@ namespace TBR.Store.Areas.Admin.Controllers
 
             return Json(new {data=users});
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> RoleManagment(string userId)
+        {
+            RoleManagmentVM RoleVM = new RoleManagmentVM()
+            {
+                AppUser = await _UnitOfWork.User.GetSpecific(u => u.Id == userId,true ,new[] {nameof(ApplicationUser.Company)} ),
+               RolesList = _roleManager.Roles.Select(i => new SelectListItem
+               {
+                   Text = i.Name,
+                   Value = i.Name
+               }),
+                CompanyList =  _UnitOfWork.Company.GetAllAsync().GetAwaiter().GetResult().Select(i => new SelectListItem
+                {
+                    Text = i.Name,
+                    Value = i.Id.ToString()
+                }),
+            };
+
+
+            var user = await _UnitOfWork.User.GetSpecific(u => u.Id == userId);
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            RoleVM.AppUser.Role = roles.FirstOrDefault(Roles.Role_Customer);
+
+            return View(RoleVM);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RoleManagment(RoleManagmentVM roleVM)
+        {
+            
+            string oldRole = _userManager.GetRolesAsync(await _UnitOfWork.User.GetSpecific(u => u.Id == roleVM.AppUser.Id))
+                              .GetAwaiter().GetResult().FirstOrDefault(Roles.Role_Customer);
+
+            ApplicationUser applicationUser = await _UnitOfWork.User.GetSpecific(u => u.Id == roleVM.AppUser.Id);
+
+
+            if (!(roleVM.AppUser.Role == oldRole))
+            {
+                //a role was updated
+                if (roleVM.AppUser.Role == Roles.Role_Company)
+                {
+                    applicationUser.CompanyId = roleVM.AppUser.CompanyId;
+                }
+                if (oldRole == Roles.Role_Company)
+                {
+                    applicationUser.CompanyId = null;
+                }
+                _UnitOfWork.User.Update(applicationUser);
+               await  _UnitOfWork.CompleteAsync();
+
+                _userManager.RemoveFromRoleAsync(applicationUser, oldRole).GetAwaiter().GetResult();
+                _userManager.AddToRoleAsync(applicationUser, roleVM.AppUser.Role).GetAwaiter().GetResult();
+
+            }
+            else
+            {
+                if (oldRole == Roles.Role_Company && applicationUser.CompanyId != roleVM.AppUser.CompanyId)
+                {
+                    applicationUser.CompanyId = roleVM.AppUser.CompanyId;
+                    _UnitOfWork.User.Update(applicationUser);
+                    await _UnitOfWork.CompleteAsync();
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
+
+           
 
     }
 }
