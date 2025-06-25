@@ -17,6 +17,7 @@ namespace TBL.Core.Contracts
         IBaseRepository<OrderDetails> OrderDetails { get; }
         IBaseRepository<ShoppingCart> ShoppingCart { get; }
         IBaseRepository<Company> Company { get; }
+        IBaseRepository<ProductImages> ProductImages { get; }
         Task CompleteAsync();
      
     }

@@ -35,11 +35,15 @@ namespace TBR.Store.Areas.Customer.Controllers
             var cartVM = new CartVM
             {
                 CartList = await _unitOfWork.ShoppingCart
-                .GetAllAsync(x => x.UserId == userId, false, new[] {nameof(ShoppingCart.Product)}),
+                .GetAllAsync(x => x.UserId == userId, false, new[] { nameof(ShoppingCart.Product) }),
+               
             };
+
+            IEnumerable<ProductImages> images = await _unitOfWork.ProductImages.GetAllAsync();
 
             foreach(var cart in cartVM.CartList)
             {
+                cart.Product.ProductImages = images.Where(x => x.ProductId == cart.Product.Id).ToList();
                 double price=GetPriceBasedOnQuantity(cart);
                 cartVM.OrderTotal +=( price * cart.Count); 
                 cart.Price = price;

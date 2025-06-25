@@ -82,9 +82,9 @@
             {
                 <div class="col-lg-3 col-md-4 col-sm-6 d-flex mb-4">
                     <div class="card border-0 p-3 shadow border-top border-5 rounded w-100 h-100 d-flex flex-column">
-                        @if (!string.IsNullOrEmpty(product.ImageURL))
+                        @if (product.ProductImages.Count()>0)
                         {
-                            <img src="@product.ImageURL" class="card-img-top rounded" style="height:250px;object-fit:cover;" />
+                            <img src="@product.ProductImages.FirstOrDefault()?.ImageIrl" class="card-img-top rounded" style="height:250px;object-fit:cover;" />
                         }
                         else
                         {

@@ -29,6 +29,8 @@ namespace TBL.EF.Repositories
 
         public IVoting Vote { get; private set; }
 
+        public IBaseRepository<ProductImages> ProductImages { get; private set; }
+
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -40,6 +42,7 @@ namespace TBL.EF.Repositories
             OrderHeader =new OrderHeaderRepository(_context);
             OrderDetails = new BaseRepository<OrderDetails>(_context);
             Vote=new VotingRepository(_context);
+            ProductImages = new BaseRepository<ProductImages>(_context);
         }
        
 

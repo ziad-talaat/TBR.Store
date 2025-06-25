@@ -14,6 +14,7 @@ namespace Application.EF.Data
         public DbSet<OrderHeader> OrderHeader { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }
         public DbSet<Product> Product { get; set; }
+        public DbSet<ProductImages> ProductImages { get; set; }
         public DbSet<Company> Company { get; set; }
         public DbSet<UserProduct_Voting> UserProduct_Voting { get; set; }
         public DbSet<ShoppingCart> ShoppingCart { get; set; }

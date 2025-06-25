@@ -48,9 +48,11 @@ namespace TBL.Core.Models
         public Category? Category { get; set; }
 
     
-        public string? ImageURL { get; set; }
+        //public string? ImageURL { get; set; }
 
+        
 
+        public ICollection<ProductImages> ProductImages { get; set; } = new List<ProductImages>();
         public ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
         public ICollection<UserProduct_Voting> UserProduct_Voting { get; set; } = new List<UserProduct_Voting>();
         public ICollection<OrderDetails> OrderDetails { get; set; } = new List<OrderDetails>();

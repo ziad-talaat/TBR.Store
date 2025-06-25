@@ -54,7 +54,7 @@ namespace TBL.EF.Repositories
                 Price = x.Price,
                 Price50 = x.Price50,
                 Price100 = x.Price100,
-                ImageURL=x.ImageURL,
+                //ImageURL=x.ImageURL,
                 CategoryName = x.Category != null ? x.Category.Name : "no Category!!"
             }).FirstOrDefaultAsync(x => x.Id == id);
 
@@ -70,9 +70,15 @@ namespace TBL.EF.Repositories
 
      
 
-     public Pagination<Product> GetAllSortedAndFilterdInPage(string? filterBy,string filterValue,  string? sortBy, string? value, bool isAssending=true,int page = 1)
+     public Pagination<Product> GetAllSortedAndFilterdInPage(string? filterBy,string filterValue,  string? sortBy, string? value, bool isAssending=true,int page = 1, string[]?includes=null)
      {
             IQueryable<Product> query = _context.Product.AsNoTracking().AsQueryable();
+
+            if (includes != null)
+            {
+                foreach(var include in includes) 
+                    query=query.Include(include);
+            }
             if (!string.IsNullOrEmpty(filterBy) && !string.IsNullOrEmpty(filterValue))
             {
                 query=BuildFilterQuery(query,filterBy,filterValue);

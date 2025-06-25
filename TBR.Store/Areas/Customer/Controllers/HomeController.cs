@@ -32,7 +32,7 @@ namespace TBR.Store.Areas.Customer.Controllers
         {
             
 
-            Pagination<Product> pageDetails=  _unitOfWork.Products.GetAllSortedAndFilterdInPage(searchBy,searchValue,sortBy, value, isAssending,pageNumber);
+            Pagination<Product> pageDetails=  _unitOfWork.Products.GetAllSortedAndFilterdInPage(searchBy,searchValue,sortBy, value, isAssending, pageNumber, new[] {nameof(Product.ProductImages)});
             ViewBag.CurrentSearchBy = searchBy;
             ViewBag.CurrentSearchValue = searchValue;
             ViewBag.CurrentSortBy = sortBy;
@@ -60,6 +60,8 @@ namespace TBR.Store.Areas.Customer.Controllers
 
 
             
+
+            
             return View(pageDetails);
         }
 
@@ -67,7 +69,7 @@ namespace TBR.Store.Areas.Customer.Controllers
         [Authorize]
         public async Task<IActionResult> Details(int id)
         {
-            Product ?product = await _unitOfWork.Products.GetSpecific(x => x.Id == id, false, new[] {nameof(Product.Category)});
+            Product ?product = await _unitOfWork.Products.GetSpecific(x => x.Id == id, false, new[] {nameof(Product.Category),nameof(Product.ProductImages)});
             var claimIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var vote = await _unitOfWork.Vote.GetSpecificVote(userId, id);

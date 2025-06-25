@@ -43,11 +43,11 @@ namespace TBR.Store.Areas.Admin.Controllers
     
          [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product product,IFormFile? file)
+        public async Task<IActionResult> Create(Product product,List<IFormFile> files)
         {
-            if (!ModelState.IsValid || file == null)
+            if (!ModelState.IsValid )
             {
-                if (file == null)
+                if (files == null)
                     ModelState.AddModelError("ImageURL", "should provide an image to the product");
 
                 var categories = await _unitOfWork.Category.GetAllAsync(false);
@@ -59,38 +59,61 @@ namespace TBR.Store.Areas.Admin.Controllers
                 ViewBag.Categories = categoriesListItems;
                 return View(product);
             }
-            string wwwRootPath = _webHostEnvironment.WebRootPath;
-           
-                string fileName=Guid.NewGuid().ToString()+Path.GetExtension(file.FileName);
-                string productPath = Path.Combine(wwwRootPath, @"Images\Products"); 
 
-                using(var fileStream =new FileStream(Path.Combine(productPath,fileName),FileMode.Create))
-                {
-                   await  file.CopyToAsync(fileStream);
-                }
-            product.ImageURL = @"/Images/Products/" + fileName;
-            
-            try
-            {  
-                await _unitOfWork.Products.AddAsync(product);
-                await _unitOfWork.CompleteAsync();
-             TempData["success"] = "product added successfuly";
-             return RedirectToAction(nameof(ProductController.Index));
-            }
-                
-            catch(DbUpdateException ex)
+            await _unitOfWork.Products.AddAsync(product);
+            await _unitOfWork.CompleteAsync();
+
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+
+            if (files.Count() > 0)
             {
-                TempData["Error"] = "failed to Add";
-                return RedirectToAction(nameof(ProductController.Index));
+                foreach (var file in files)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string productPath = @"images/products/product-" + product.Id;
+                    string finalPath = Path.Combine(wwwRootPath, productPath);
+
+                    if(!Directory.Exists(finalPath))
+                        Directory.CreateDirectory(finalPath);
+                    
+                    using (var fileStream=new FileStream( Path.Combine(finalPath, fileName),FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);    
+                    }
+
+                    ProductImages image = new()
+                    {
+                        ImageIrl = @"/" + productPath + @"/" + fileName,
+                        ProductId= product.Id,
+                    };
+                 
+                    try
+                    {
+                        await _unitOfWork.ProductImages.AddAsync(image);
+                        await _unitOfWork.CompleteAsync();
+                        TempData["success"] = "product added successfuly";
+                       
+                    }
+
+                    catch (DbUpdateException ex)
+                    {
+                        TempData["Error"] = "failed to Add";
+                       
+                    }
+                }
             }
+            return RedirectToAction(nameof(ProductController.Index));
         }
+
+              
+          
 
 
     
          [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            Product? product = await _unitOfWork.Products.GetOneAsync<int>(id);
+            Product? product = await _unitOfWork.Products.GetSpecific(x => x.Id == id, true, new[] { nameof(Product.ProductImages) });
             if(product == null)
                 return View("Error");
             var categories = await _unitOfWork.Category.GetAllAsync(false);
@@ -106,7 +129,7 @@ namespace TBR.Store.Areas.Admin.Controllers
     
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Product product ,IFormFile? file)
+        public async Task<IActionResult> Edit(Product product ,List<IFormFile> files)
         {
             if (!ModelState.IsValid)
             {
@@ -119,46 +142,49 @@ namespace TBR.Store.Areas.Admin.Controllers
                 ViewBag.Categories = categoriesListItems;
                 return View(product);
             }
-
-            if (file != null)
-            {
-                if (!string.IsNullOrEmpty(product.ImageURL))
-                {
-                    var oldimagePath = Path.Combine(_webHostEnvironment.WebRootPath, product.ImageURL.TrimStart('/'));
-
-                    if (System.IO.File.Exists(oldimagePath))
-                    {
-                        System.IO.File.Delete(oldimagePath);
-                    }
-                }
-    
-
                 string wwwRootPath = _webHostEnvironment.WebRootPath;
 
-                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                string productPath = Path.Combine(wwwRootPath, @"Images\Products");
 
-                using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
+          
+
+            if (files.Count() > 0)
+            {
+                string productFolder = Path.Combine("Images", "Products", $"product-{product.Id}");
+                string finalPath = Path.Combine(wwwRootPath, productFolder);
+
+                if(!Directory.Exists(finalPath))
+                    Directory.CreateDirectory(finalPath);
+
+                foreach (var file in files)
                 {
-                    await file.CopyToAsync(fileStream);
-                }
-                product.ImageURL = @"/Images/Products/" + fileName;
-            }
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string fullFilePath = Path.Combine(finalPath, fileName);
 
+                    using (var fileStream = new FileStream(fullFilePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+                    var image = new ProductImages()
+                    {
+                        ProductId = product.Id,
+                        ImageIrl = "/" + Path.Combine(productFolder, fileName).Replace("\\", "/")
+                    };
+                   product.ProductImages.Add(image);
+                }
+                
+            }
             try
             {
-
                 _unitOfWork.Products.Update(product);
-                 await _unitOfWork.CompleteAsync();
-                TempData["success"] = "product Updated successfuly";
+                await _unitOfWork.CompleteAsync();
+                TempData["success"] = "Product updated successfully.";
             }
-            catch(DbUpdateException ex)
+            catch (DbUpdateException)
             {
-                TempData["Error"] = "Unable to Update the product.";
+                TempData["Error"] = "Failed to update product.";
             }
 
             return RedirectToAction(nameof(ProductController.Index));
-    
         }
 
 
@@ -172,26 +198,27 @@ namespace TBR.Store.Areas.Admin.Controllers
             return View(product);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public async Task<IActionResult> Deletee(int  id)
         {
-            Product? product = await _unitOfWork.Products.GetOneAsync<int>(id);
-            if (product == null)
+            ProductImages? image=await _unitOfWork.ProductImages.GetOneAsync(id);
+
+            if (image == null)
                 return View("Error");
-            if (!string.IsNullOrEmpty(product.ImageURL))
-            {
-                var oldimagePath = Path.Combine(_webHostEnvironment.WebRootPath, product.ImageURL.TrimStart('/'));
+
+
+            var path = image.ImageIrl.TrimStart('/');
+                var oldimagePath = Path.Combine(_webHostEnvironment.WebRootPath, path);
 
                 if (System.IO.File.Exists(oldimagePath))
                 {
                     System.IO.File.Delete(oldimagePath);
                 }
-            }
+            
             try
             {
 
-                _unitOfWork.Products.Remove(product);
+                _unitOfWork.ProductImages.Remove(image);
                 await _unitOfWork.CompleteAsync();
                 TempData["success"] = "product Deleted successfuly";
             }
@@ -200,7 +227,7 @@ namespace TBR.Store.Areas.Admin.Controllers
                 TempData["Error"] = "Unable to Delete the product.";
             }
 
-            return RedirectToAction(nameof(ProductController.Index));
+            return RedirectToAction(nameof(ProductController.Edit), new {id=image.ProductId});
 
         }
 
