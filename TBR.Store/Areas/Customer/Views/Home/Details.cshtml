@@ -1,13 +1,14 @@
-﻿@model ShoppingCart
+﻿           
+@model ShoppingCart
+
 <form method="post">
-    <input asp-for="ProductId" type="hidden" />
-    <input type="hidden" id="voteType" name="voteType"  />
-    <div class="card shadow border-0 mt-4">
+    <input hidden asp-for="ProductId" />
+    <div class="card shadow border-0 mt-4 mb-4">
         <div class="card-header bg-secondary bg-gradient text-light py-4">
             <div class="row">
                 <div class="col-12 text-center">
-                    <h3 class="text-white text-uppercase">Title</h3>
-                    <p class="text-white-50 fw-semibold mb-0">by @Model.Product.Title</p>
+                    <h3 class="text-white text-uppercase">@Model.Product.Title</h3>
+                    <p class="text-white-50 fw-semibold mb-0">by @Model.Product.Author</p>
                 </div>
             </div>
         </div>
@@ -15,27 +16,58 @@
             <div class="py-3">
                 <div class="row">
                     <div class="col-6 col-md-2 offset-lg-1 pb-1">
-                        <a  asp-action="Index" asp-controller="Home" class="btn btn-outline-primary bg-gradient mb-5 fw-semibold btn-sm text-uppercase">
+                        <a asp-action="Index" class="btn btn-outline-primary bg-gradient mb-5 fw-semibold btn-sm text-uppercase">
                             <small>Back to home</small>
                         </a>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-12 col-lg-3 offset-lg-1 text-center mb-3">
-                            @if (Model.Product.ProductImages != null)
-                            {
-                                foreach (var image in Model.Product.ProductImages)
-                                {
-                                    <div class="border p-1 m-2 text-center">
-                                        <img src="@image.ImageIrl" width="100%" style="border-radius:5px;border:1px solid #bbb9b9" />
+
+
+
+                        @if (Model.Product.ProductImages != null && Model.Product.ProductImages.Count > 0) {
+                            <div id="carouselExampleIndicators" class="carousel  slide" data-bs-ride="carousel">
+                                <div class="carousel-indicators">
+
+                                    @foreach(var imageWithIndex in 
+                                    Model.Product.ProductImages
+                                   .Select((image, index) => new { Image = image, Index = index })) {
+                                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@imageWithIndex.Index" 
+                                        class="@(imageWithIndex.Index==0?"active":"")" aria-current="true" aria-label="Slide 1"></button>
+                                    }
+
+                                   
+                                </div>
+                                <div class="carousel-inner">
+                                    @foreach (var imageWithIndex in
+                                   Model.Product.ProductImages
+                                   .Select((image, index) => new { Image = image, Index = index })) {
+                                        <div class="@(imageWithIndex.Index==0?"carousel-item active":"carousel-item")">
+                                            <img src="@imageWithIndex.Image.ImageIrl" class="d-block w-100" alt="...">
                                     </div>
-                                }
-                            }
-                    </div>
+                                   }
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+
+                        }
+
+                       
+
+
+
+
+
 
                     </div>
-
-                    
                     <div class="col-12 col-lg-6 offset-lg-1">
 
                         <div class="col-12 col-md-6 pb-4">
@@ -46,15 +78,15 @@
                         </div>
                         <div class="row ps-2">
                             <h6 class="text-dark text-opacity-50  pb-2">
-                                ListPrice:
+                                List Price:
                                 <span class="text-decoration-line-through">
-                                   @Model.Product.DisplayPrice.ToString("C")
+                                    @Model.Product.DisplayPrice.ToString("c")
                                 </span>
                             </h6>
                         </div>
                         <div class="row text-center ps-2">
                             <div class="p-1 col-3 col-lg-2 bg-white border-bottom">
-                                <div class="text-dark text-opacity-50 fw-semibold">Quanitity</div>
+                                <div class="text-dark text-opacity-50 fw-semibold">Quantity</div>
                             </div>
                             <div class="p-1 col-3 col-lg-2 bg-white border-bottom">
                                 <div class="text-dark text-opacity-50 fw-semibold">1-50</div>
@@ -71,17 +103,17 @@
                                 <div>Price</div>
                             </div>
                             <div class="p-1 col-3 col-lg-2 bg-white text-warning fw-bold">
-                                <div>@Model.Product.Price.ToString("C")</div>
+                                <div>@Model.Product.Price.ToString("c")</div>
                             </div>
                             <div class="p-1 col-3 col-lg-2 bg-white text-warning fw-bold">
-                                <div>@Model.Product.Price50.ToString("C")</div>
+                                <div>@Model.Product.Price50.ToString("c")</div>
                             </div>
                             <div class="p-1 col-3 col-lg-2 bg-white text-warning fw-bold">
-                                <div>@Model.Product.Price100.ToString("C")</div>
+                                <div>@Model.Product.Price100.ToString("c")</div>
                             </div>
                         </div>
                         <div class="row pl-2 my-3">
-                            <p class="text-secondary lh-sm">@Html.Raw(@Model.Product.Describtion)</p>
+                            <p class="text-secondary lh-sm">@Html.Raw(Model.Product.Describtion)</p>
                         </div>
                         <div class="row pl-2 mb-3">
                             <div class="col-md-4">
@@ -97,33 +129,8 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="row mb-3">
-                                <div class="col-6 col-md-3">
-                                    <form asp-action="Vote" method="post">
-                                        <input asp-for="ProductId" type="hidden" />
-                                        @await Component.InvokeAsync("UpVote", new { productId = Model.ProductId })
-                                        <input type="hidden" name="voteType" value="0" />
-                                        <button type="submit" id="likeBtn" class="btn btn-outline-success w-100 @(ViewBag.CurrentVote == "UpVote" ? "active" : "")">
-                                            <i class="bi bi-hand-thumbs-up-fill"></i> Like
-                                        </button>
-                                    </form>
-
-                                  
-                                </div>
-                                <div class="col-6 col-md-3">
-                                    <form asp-action="Vote" method="post">
-                                        <input asp-for="ProductId" type="hidden" />
-                                        @await Component.InvokeAsync("DownVote", new { productId =Model.ProductId})
-                                    <input type="hidden" name="voteType" value="1" />
-                                        <button id="dislikeBtn"  type="submit" class="btn btn-outline-danger w-100 @(ViewBag.CurrentVote == "DownVote" ? "active" : "")">
-                                        <i class="bi bi-hand-thumbs-down-fill"></i> Dislike
-                                    </button>
-                                  </form>
-                                </div>
-                              
-                            </div>
                             <div class="col-12 col-md-6 pb-1">
-                                <button type="submit" 
+                                <button type="submit"
                                         class="btn btn-primary bg-gradient  w-100 py-2 text-uppercase fw-semibold">
                                     Add to Cart 
                                 </button>
@@ -136,29 +143,3 @@
         </div>
     </div>
 </form>
-  @section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const likeBtn = document.getElementById("likeBtn");
-            const dislikeBtn = document.getElementById("dislikeBtn");
-            const voteInput = document.getElementById("voteType");
-
-            const form = likeBtn.closest("form"); 
-
-            likeBtn.addEventListener("click", function (e) {
-                e.preventDefault();
-                voteInput.value = "0"; 
-                form.action = '@Url.Action("Vote", "Home")';
-                form.submit();
-            });
-
-            dislikeBtn.addEventListener("click", function (e) {
-                e.preventDefault();
-                voteInput.value = "1"; 
-                form.action = '@Url.Action("Vote", "Home")';
-                form.submit();
-            });
-        });
-    </script>
-}
-
