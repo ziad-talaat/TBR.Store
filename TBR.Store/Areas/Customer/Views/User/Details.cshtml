@@ -1,0 +1,24 @@
+﻿
+
+@model IEnumerable<OrderDetailsVM>
+
+<h2 class="mb-4">My Orders</h2>
+
+<div class="row">
+    @foreach (var order in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <a asp-area="Customer" asp-action="Details" asp-controller="Home" asp-route-id="@order.ProductId">
+                    <img src="@order?.ImageUrl" class="card-img-top" style="height:200px; object-fit:cover;" />
+                </a>
+                <div class="card-body text-center">
+                    <h5 class="card-title">Title: @order.ProductName</h5>
+                    <p class="card-text">Quantity: @order.Count</p>
+                    <p class="card-text text-primary fw-bold">@order.Price.ToString("C")</p>
+                    <a asp-area="Customer" asp-action="Details" asp-controller="Home" asp-route-id="@order.ProductId" class="btn btn-outline-primary btn-sm">View Details</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

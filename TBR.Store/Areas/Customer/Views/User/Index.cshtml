@@ -1,4 +1,7 @@
-﻿@* @model UserPageVM
+﻿
+
+
+@model UserPageVM
 
 @{
     ViewData["Title"] = "My Profile";
@@ -10,49 +13,7 @@
 
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-6 text-center">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <img src="@profileImage" class="rounded-circle mb-3" width="120" height="120" alt="Profile Image" />
-                    <h4 class="mb-1">@Model.UserName</h4>
-                    <p class="text-muted">@Model.Email</p>
-
-                    <form method="post" asp-action="ChangeImage" asp-controller="User" enctype="multipart/form-data" id="uploadForm">
-                        <input name="file" id="fileInput" type="file" class="d-none" onchange="document.getElementById('uploadForm').submit()" />
-                    </form>
-
-                    <a href="javascript:void(0);" id="changeImageLink" class="btn btn-sm btn-outline-primary mt-2">
-                        Change Image
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        document.getElementById('changeImageLink').addEventListener('click', function () {
-            document.getElementById('fileInput').click();
-        });
-    </script>
-}
- *@
-
-
- @model UserPageVM
-
-@{
-    ViewData["Title"] = "My Profile";
-
-    string profileImage = string.IsNullOrEmpty(Model.ImageUrl)
-        ? Url.Content("~/images/Users/cat.jpg")
-        : Url.Content(Model.ImageUrl);
-}
-
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-8">
             <div class="card border-0 shadow-lg rounded-4 text-center">
                 <div class="card-body p-5">
                     <img src="@profileImage" class="rounded-circle shadow-sm mb-4" width="120" height="120" alt="Profile Image" />
@@ -68,9 +29,36 @@
                         Change Image
                     </a>
 
-                    <a asp-action="ChangePassword" asp-controller="User" class="btn btn-outline-warning btn-sm mt-3">
+                    <a asp-action="ChangePassword" asp-controller="User" class="btn btn-outline-warning btn-sm mt-3 me-2">
                         Change Password
                     </a>
+
+                    <a asp-action="EditUSerInfo" asp-controller="User" class="btn btn-outline-info btn-sm mt-3 me-2">
+                        Edit Profile
+                    </a>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-4 rounded-4">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Account Options</h5>
+                    <div class="list-group list-group-flush">
+                        <a asp-action="MyOrders" asp-controller="user" class="list-group-item list-group-item-action">
+                            🧾 My Orders
+                        </a>
+                        <a asp-action="SavedAddresses" asp-controller="User" class="list-group-item list-group-item-action">
+                            📬 Shipping Addresses
+                        </a>
+                        <a asp-action="Wishlist" asp-controller="Product" class="list-group-item list-group-item-action">
+                            ❤️ LikedList
+                        </a>
+                        <a asp-action="Settings" asp-controller="User" class="list-group-item list-group-item-action">
+                            ⚙️ Account Settings
+                        </a>
+                        <a asp-action="Logout" asp-controller="Auth" class="list-group-item list-group-item-action text-danger">
+                            🚪 Logout
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -84,4 +72,3 @@
         });
     </script>
 }
-

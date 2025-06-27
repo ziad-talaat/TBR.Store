@@ -1,0 +1,41 @@
+﻿ @model IEnumerable<MyOrdersVM>
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<h2 class="mb-4">My Orders</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">You have no orders yet.</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Product Count</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.Count</td>
+                    <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                    <td>@order.PaymentStatus</td>
+                    <td>@order.OrderTotalPrice.ToString("C")</td>
+                    <td>
+                        <a   asp-action="Details" asp-controller="User" asp-route-orderHederId="@order.Id" class="btn btn-sm btn-primary">View</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+ 

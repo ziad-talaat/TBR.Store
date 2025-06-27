@@ -21,6 +21,9 @@ namespace TBL.Core.Contracts
         Task<T?> GetSpecific(Expression<Func<T,bool>>filter);
         Task<T?> GetSpecific(Expression<Func<T,bool>>filter,bool track);
         Task<T?> GetSpecific(Expression<Func<T,bool>>filter,bool track, string[]includes);
+
+         string? GetUserImageUrl(string userId);
+
         Task AddAsync(T item);
         //Task UpdateAsync(T item);
         void Remove(T item);

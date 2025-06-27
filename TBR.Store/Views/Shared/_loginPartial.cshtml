@@ -1,9 +1,35 @@
-﻿<ul class="navbar-nav">
+﻿@{
+
+    string profileImageUrl = Url.Action("GetUserImage", "User", new { area = "Customer" }); 
+
+
+    string currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    string currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    bool isAccountPage = currentController == "User";
+
+
+    bool isHome = currentController == "Home" && currentAction == "Index";
+}
+
+
+<ul class="navbar-nav">
     @if (User.Identity?.IsAuthenticated ?? false)
     {
-        <li class="nav-item"> 
-            <a asp-action="index" asp-controller="User" class="nav-link">Hello @User.Identity.Name!</a>
-        </li>
+
+        <li class="nav-item">
+            @if (isAccountPage is false)
+            {
+                <a asp-action="Index" asp-controller="User" class="nav-link">
+                    <img src="@profileImageUrl" style="width:30px;height:30px;border-radius:50%;" />
+                </a>
+            }
+            else
+            {
+                <a asp-action="Index" asp-controller="Home" class="nav-link">
+                    <i class="fas fa-home"></i> Home
+            </a>
+            }
+        </li> 
         <li class="nav-item">
             <form asp-area="Customer"
                   asp-controller="Account"

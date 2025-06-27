@@ -199,5 +199,11 @@ namespace TBL.EF.Repositories
             IQueryable<T> query=_context.Set<T>().AsQueryable();
             return query;   
         }
+
+        public string? GetUserImageUrl(string userId)
+        {
+            string? url = _context.User.AsNoTracking().Where(x=>x.Id==userId).Select(x => x.ImageUrl).FirstOrDefault();
+            return url;
+        }
     }
 }
