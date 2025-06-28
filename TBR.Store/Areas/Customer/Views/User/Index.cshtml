@@ -46,16 +46,12 @@
                         <a asp-action="MyOrders" asp-controller="user" class="list-group-item list-group-item-action">
                             🧾 My Orders
                         </a>
-                        <a asp-action="SavedAddresses" asp-controller="User" class="list-group-item list-group-item-action">
-                            📬 Shipping Addresses
-                        </a>
-                        <a asp-action="Wishlist" asp-controller="Product" class="list-group-item list-group-item-action">
+                       
+                        <a asp-Area="Admin" asp-action="Wishlist" asp-controller="Product" class="list-group-item list-group-item-action">
                             ❤️ LikedList
                         </a>
-                        <a asp-action="Settings" asp-controller="User" class="list-group-item list-group-item-action">
-                            ⚙️ Account Settings
-                        </a>
-                        <a asp-action="Logout" asp-controller="Auth" class="list-group-item list-group-item-action text-danger">
+                       
+                        <a asp-action="Logout" asp-controller="Account" class="list-group-item list-group-item-action text-danger">
                             🚪 Logout
                         </a>
                     </div>

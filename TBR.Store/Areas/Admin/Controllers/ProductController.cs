@@ -3,14 +3,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using TBL.Core.Contracts;
 using TBL.Core.Enums;
 using TBL.Core.Models;
 
 namespace TBR.Store.Areas.Admin.Controllers
 {
+    
     [Area(nameof(Areas.Admin))]
-    [Authorize(Roles = Roles.Role_Admin)]
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -21,6 +23,7 @@ namespace TBR.Store.Areas.Admin.Controllers
             _webHostEnvironment=webHostEnvironment;
         }
         [HttpGet]
+        [Authorize(Roles = Roles.Role_Admin)]
         public async Task<IActionResult> Index()
         {
             var products =await  _unitOfWork.Products.GetProductWithCategoryName();
@@ -28,6 +31,7 @@ namespace TBR.Store.Areas.Admin.Controllers
         }
     
         [HttpGet]
+        [Authorize(Roles = Roles.Role_Admin)]
         public async Task<IActionResult> Create()
         {
             var categories = await _unitOfWork.Category.GetAllAsync(false);
@@ -43,6 +47,7 @@ namespace TBR.Store.Areas.Admin.Controllers
     
          [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Roles.Role_Admin)]
         public async Task<IActionResult> Create(Product product,List<IFormFile> files)
         {
             if (!ModelState.IsValid )
@@ -111,6 +116,7 @@ namespace TBR.Store.Areas.Admin.Controllers
 
     
          [HttpGet]
+        [Authorize(Roles = Roles.Role_Admin)]
         public async Task<IActionResult> Edit(int id)
         {
             Product? product = await _unitOfWork.Products.GetSpecific(x => x.Id == id, true, new[] { nameof(Product.ProductImages) });
@@ -129,6 +135,7 @@ namespace TBR.Store.Areas.Admin.Controllers
     
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Roles.Role_Admin)]
         public async Task<IActionResult> Edit(Product product ,List<IFormFile> files)
         {
             if (!ModelState.IsValid)
@@ -188,7 +195,9 @@ namespace TBR.Store.Areas.Admin.Controllers
         }
 
 
+        
         [HttpGet]
+        [Authorize(Roles = Roles.Role_Admin)]
         public async Task<IActionResult> Delete(int id)
         {
             Product? product = await _unitOfWork.Products.GetOneAsync<int>(id);
@@ -198,7 +207,7 @@ namespace TBR.Store.Areas.Admin.Controllers
             return View(product);
         }
 
-        
+        [Authorize(Roles = Roles.Role_Admin)]
         public async Task<IActionResult> Deletee(int  id)
         {
             ProductImages? image=await _unitOfWork.ProductImages.GetOneAsync(id);
@@ -235,14 +244,38 @@ namespace TBR.Store.Areas.Admin.Controllers
 
         #region ApiCalls
         [HttpGet]
+        [Authorize(Roles = Roles.Role_Admin)]
         public async Task< IActionResult> GetAll()
         {
             var productsData = await _unitOfWork.Products.GetProductWithCategoryName();
            return Json(new {data= productsData } );
         }
-   
+
 
         #endregion
 
+
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Wishlist()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            IEnumerable<UserProduct_Voting> products = await _unitOfWork.UserProduct_Voting.GetAllAsync(x => x.UserId == userId &&
+            x.VoteType == 0, false, new[] {  nameof(UserProduct_Voting.Product), $"{nameof(UserProduct_Voting.Product)}.{nameof(Product.ProductImages)}"  });
+
+
+            IEnumerable<ProductVM> likedProduct = products.Select(x => new ProductVM
+            {
+                Id = x.ProductId,
+                Price=x.Product.DisplayPrice,
+                Title = x.Product?.Title,
+                Description = x.Product?.Describtion,
+                Author = x.Product?.Author,
+                ImageUrl=x.Product?.ProductImages?.Select(x=>x.ImageIrl).FirstOrDefault()
+            }).ToList();
+
+            return View(likedProduct);
+        }
     }
 }

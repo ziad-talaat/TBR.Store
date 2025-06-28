@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Stripe;
 using Stripe.Climate;
 using System.Security.Claims;
@@ -20,12 +21,14 @@ namespace TBR.Store.Areas.Customer.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IWebHostEnvironment _webHost;
-        public UserController(IUnitOfWork unitOfWork, IWebHostEnvironment webHost, UserManager<ApplicationUser> userManager)
+        public UserController(IUnitOfWork unitOfWork, IWebHostEnvironment webHost, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
             _unitOfWork=unitOfWork;
             _webHost=webHost;
             _userManager=userManager;
+            _signInManager = signInManager;
         }
 
         public async Task<IActionResult> Index()
@@ -94,69 +97,78 @@ namespace TBR.Store.Areas.Customer.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword(string oldPassword)
+        public async Task<IActionResult> ChangePassword(ChangePasswordVM pass)
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null)
-                return Unauthorized("user Not authenticated");
-
-            ApplicationUser? user = await _unitOfWork.User.GetOneAsync(userId);
-
-          bool result=  await _userManager.CheckPasswordAsync(user, oldPassword);
-
-            if (result == true)
-            {
-                HttpContext.Session.SetString("AllowCanChange", "true");
-                HttpContext.Session.SetString("oldPass", oldPassword);
-                return RedirectToAction("CanChange");
-            }
-
-            TempData["Error"] = "the password isn't right";
-            return RedirectToAction("Index");   
-        }
-
-        [HttpGet]
-        public IActionResult CanChange()
-        {
-            var canChange = HttpContext.Session.GetString("AllowCanChange");
-            if (canChange != "true")
-            {
-                return Unauthorized("You cannot access this directly.");
-            }
-
-            return View();
-        }
-
-         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CanChange(string password)
-        {
-
-            string oldPass=HttpContext.Session.GetString("oldPass");
-
-            var canChange = HttpContext.Session.GetString("AllowCanChange");
-            if (canChange != "true")
-            {
-                return Unauthorized("You cannot access this directly.");
-            }
-            HttpContext.Session.Remove("AllowCanChange");
-            HttpContext.Session.Remove("oldPass");
-
-
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null)
-                return Unauthorized("user Not authenticated");
-
-            ApplicationUser? user = await _unitOfWork.User.GetOneAsync(userId);
-
-            await  _userManager.ChangePasswordAsync(user, oldPass, password);
             
-            TempData["success"] = "the password updated";
+            if (ModelState.IsValid)
+            {
 
-            return RedirectToAction("Index");   
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId == null)
+                    return Unauthorized("user Not authenticated");
+
+                var user = await _userManager.GetUserAsync(User);
+
+                var result = await _userManager.ChangePasswordAsync(user, pass.OldPassword, pass.NewPassword);
+
+                if (result.Succeeded)
+                {
+                    await _signInManager.RefreshSignInAsync(user);
+                    TempData["success"] = "password Changed Successfully";
+                    return RedirectToAction("Index");
+                }
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+            return View(pass);   
+
+
         }
+
+        //[HttpGet]
+        //public IActionResult CanChange()
+        //{
+        //    var canChange = HttpContext.Session.GetString("AllowCanChange");
+        //    if (canChange != "true")
+        //    {
+        //        return Unauthorized("You cannot access this directly.");
+        //    }
+
+        //    return View();
+        //}
+
+        // [HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> CanChange(string password)
+        //{
+
+        //    string oldPass=HttpContext.Session.GetString("oldPass");
+
+        //    var canChange = HttpContext.Session.GetString("AllowCanChange");
+        //    if (canChange != "true")
+        //    {
+        //        return Unauthorized("You cannot access this directly.");
+        //    }
+        //    HttpContext.Session.Remove("AllowCanChange");
+        //    HttpContext.Session.Remove("oldPass");
+
+
+        //    var claimsIdentity = (ClaimsIdentity)User.Identity;
+        //    var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //    if (userId == null)
+        //        return Unauthorized("user Not authenticated");
+
+        //    ApplicationUser? user = await _unitOfWork.User.GetOneAsync(userId);
+
+        //    await  _userManager.ChangePasswordAsync(user, oldPass, password);
+            
+        //    TempData["success"] = "the password updated";
+
+        //    return RedirectToAction("Index");   
+        //}
 
         [HttpGet]
         public ActionResult<string?> GetUserImage()
