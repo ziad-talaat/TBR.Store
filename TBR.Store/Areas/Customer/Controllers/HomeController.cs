@@ -129,9 +129,9 @@ namespace TBR.Store.Areas.Customer.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> Vote(Voting voteType,int ProductId)
+        public async Task<IActionResult> Vote(Voting voteType,int productId)
         {
             var claimIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -143,7 +143,7 @@ namespace TBR.Store.Areas.Customer.Controllers
 
 
 
-            var existingVote = await _unitOfWork.Vote.GetSpecificVote(userId, ProductId);
+            var existingVote = await _unitOfWork.Vote.GetSpecificVote(userId, productId);
 
             if (existingVote != null)
             {
@@ -167,7 +167,7 @@ namespace TBR.Store.Areas.Customer.Controllers
             {
                 UserProduct_Voting newVote = new UserProduct_Voting()
                 {
-                    ProductId = ProductId,
+                    ProductId = productId,
                     UserId = userId,
                     VotingTime = DateTime.Now,
                     VoteType = voteType,
@@ -184,7 +184,7 @@ namespace TBR.Store.Areas.Customer.Controllers
             }
 
 
-            return RedirectToAction("Details",  new { id = ProductId });
+            return RedirectToAction("Details",  new { id = productId });
         }
 
         

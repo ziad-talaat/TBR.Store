@@ -132,26 +132,20 @@
 
                             <div class="row mb-3">
                                  <div class="col-6 col-md-3">
-                                    <form id="likeForm" asp-action="Vote" method="post">
-                                        <input asp-for="ProductId" type="hidden" />
-                                        <input type="hidden" name="voteType" value="0" />
+
                                         <span class="ms-2">@await Component.InvokeAsync("UpVote", new { productId = Model.ProductId })</span>
-                                        <button type="submit" id="likeBtn" class="btn btn-outline-success w-100 @(ViewBag.CurrentVote == "UpVote" ? "active" : "")">
+                                        <button type="button" id="likeBtn" class="btn btn-outline-success w-100 @(ViewBag.CurrentVote == "UpVote" ? "active" : "")">
                                             <i class="bi bi-hand-thumbs-up-fill"></i> Like
                                         </button>
-                                    </form>
+                               
                                 </div> 
                         
 
                                 <div class="col-6 col-md-3">
-                                    <form id="dislikeForm" asp-action="Vote" method="post">
-                                        <input asp-for="ProductId" type="hidden" />
-                                        <input type="hidden" name="voteType" value="1" />
-                                        <span class="ms-2">@await Component.InvokeAsync("DownVote", new { productId = Model.ProductId })</span>
-                                        <button id="dislikeBtn" type="submit" class="btn btn-outline-danger w-100 @(ViewBag.CurrentVote == "DownVote" ? "active" : "")">
-                                            <i class="bi bi-hand-thumbs-down-fill"></i> Dislike
-                                        </button>
-                                    </form>
+                                    <span class="ms-2">@await Component.InvokeAsync("DownVote", new { productId = Model.ProductId })</span>
+                                    <button type="button" id="dislikeBtn" class="btn btn-outline-danger w-100 @(ViewBag.CurrentVote == "DownVote" ? "active" : "")">
+                                        <i class="bi bi-hand-thumbs-down-fill"></i> Dislike
+                                    </button>
                                 </div>
 
                             </div>
@@ -174,46 +168,85 @@
 
 
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
-  @section Scripts {
-    <script>
+ @*    
+    
+      
+ <script>
 
 
-        document.addEventListener("DOMContentLoaded", function () {
-            const likeBtn = document.getElementById("likeBtn");
-            const dislikeBtn = document.getElementById("dislikeBtn");
-            const likeForm = document.getElementById("likeForm");
+
+     $(document).ready( function () { 
+         $("#likeBtn").click(function (e) {
+             e.preventDefault();
+             sendVote(0); 
+         });
+
+         $("#dislikeBtn").click(function (e) {
+            e.preventDefault();
+             sendVote(1); 
+         });
 
 
-            // if (likeBtn) {
-            //     likeBtn.addEventListener("click", function (e) {
-            //         e.preventDefault();
-            //         const form = likeBtn.closest("form");
-            //         if (form) {
-            //             form.submit();
-            //         }
-            //     });
-            // }
-                if (likeBtn && likeForm) {
-            likeBtn.addEventListener("click", function (e) {
-                e.preventDefault();
-                likeForm.submit();
+
+     function sendVote(voteType) {
+            $.ajax({
+                url: "/Customer/Home/Vote",
+                type: "POST",
+                data: {
+                    voteType: voteType,
+                    productId: @Model.ProductId
+                },
+                success: function (res) {
+                    if (res.success) {
+                        location.reload();
+                    }
+                   
+                },
+                error: function (err) {
+                    alert("An error occurred.");
+                }
+            });
+        })
+     } });
+</script>  
+ *@
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#likeBtn").click(function (e) {
+            e.preventDefault();
+            sendVote(0); 
+        });
+
+        $("#dislikeBtn").click(function (e) {
+            e.preventDefault();
+            sendVote(1); 
+        });
+
+        function sendVote(voteType) {
+            $.ajax({
+                url: "/Customer/Home/Vote",
+                type: "POST",
+                data: {
+                    voteType: voteType,
+                    productId: @Model.ProductId
+                },
+                success: function (res) {
+                    location.reload();
+                },
+                error: function () {
+                    alert("An error occurred.");
+                }
             });
         }
+    });
+</script>
 
-            if (dislikeBtn) {
-                dislikeBtn.addEventListener("click", function (e) {
-                    e.preventDefault();
-                    const form = dislikeBtn.closest("form");
-                    if (form) {
-                        form.submit();
-                    }
-                });
-            }
-        });
-    </script>
-}
- 
+
  
  
