@@ -18,6 +18,7 @@ namespace TBL.EF.Repositories
         public IProductRepository Products { get; private set; }
 
         public IBaseRepository<ApplicationUser> User { get; private set; }
+        public IBaseRepository<FeedBack> FeedBack { get; private set; }
 
         public IBaseRepository<Company> Company { get; private set; }
 
@@ -46,6 +47,7 @@ namespace TBL.EF.Repositories
             Vote=new VotingRepository(_context);
             ProductImages = new BaseRepository<ProductImages>(_context);
             UserProduct_Voting = new BaseRepository<UserProduct_Voting>(_context);
+            FeedBack = new BaseRepository<FeedBack>(_context);
         }
        
 

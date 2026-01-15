@@ -1,5 +1,6 @@
 using Application.EF.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Plugins;
 using Stripe;
@@ -20,7 +21,10 @@ namespace TBR.Store
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews(options =>
+            {
+                options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+            });
             builder.Services.AddSession();
 
             builder.Services.Configure<StripeSetting>(builder.Configuration.GetSection("Stripe"));
@@ -43,12 +47,26 @@ namespace TBR.Store
                 options.LogoutPath = "/Customer/Account/LogOut";
             });
 
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("NotAuthorized", policy =>
+                {
+                    policy.RequireAssertion(context =>
+                    {
+                        return !context.User.Identity.IsAuthenticated;
+                    });
+                });
+            });
+
             var app = builder.Build();
 
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+            app.UseHsts();
+            app.UseHttpsRedirection();
+
             app.UseStaticFiles();
 
             StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();

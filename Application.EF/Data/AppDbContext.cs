@@ -11,6 +11,7 @@ namespace Application.EF.Data
             
         }
         public DbSet<ApplicationUser> User { get; set; }
+        public DbSet<FeedBack> FeedBacks { get; set; }
         public DbSet<Category> Category { get; set; }
         public DbSet<OrderHeader> OrderHeader { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }

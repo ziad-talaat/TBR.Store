@@ -1,6 +1,4 @@
-﻿           
-@model ShoppingCart
-
+﻿@model ShoppingCart
 <form method="post">
     <input hidden asp-for="ProductId" />
     <div class="card shadow border-0 mt-4 mb-4">
@@ -23,9 +21,6 @@
                 </div>
                 <div class="row">
                     <div class="col-12 col-lg-3 offset-lg-1 text-center mb-3">
-
-
-
                         @if (Model.Product.ProductImages != null && Model.Product.ProductImages.Count > 0) {
                             <div id="carouselExampleIndicators" class="carousel  slide" data-bs-ride="carousel">
                                 <div class="carousel-indicators">
@@ -57,15 +52,7 @@
                                     <span class="visually-hidden">Next</span>
                                 </button>
                             </div>
-
                         }
-
-                       
-
-
-
-
-
 
                     </div>
                     <div class="col-12 col-lg-6 offset-lg-1">
@@ -124,7 +111,6 @@
                                     </span>
                                     <input asp-for="Count" type="number" value="1" class="form-control text-end"
                                            aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" />
-
                                 </div>
                             </div>
                         </div>
@@ -137,10 +123,7 @@
                                         <button type="button" id="likeBtn" class="btn btn-outline-success w-100 @(ViewBag.CurrentVote == "UpVote" ? "active" : "")">
                                             <i class="bi bi-hand-thumbs-up-fill"></i> Like
                                         </button>
-                               
                                 </div> 
-                        
-
                                 <div class="col-6 col-md-3">
                                     <span class="ms-2">@await Component.InvokeAsync("DownVote", new { productId = Model.ProductId })</span>
                                     <button type="button" id="dislikeBtn" class="btn btn-outline-danger w-100 @(ViewBag.CurrentVote == "DownVote" ? "active" : "")">
@@ -148,9 +131,26 @@
                                     </button>
                                 </div>
 
+                               
+                                <div>
+                                    @await Component.InvokeAsync("FeedBackPerProduct", new { productId = Model.ProductId })
+                                </div>
+
+                                @if (ViewBag.CanComment)
+                                {
+                                    <div id="feedBackContainer" class="col-12 col-md-6 mt-3">
+                                        <label for="feedbackInput" class="form-label ms-2 fw-bold">Leave Your Feedback</label>
+                                        <div class="input-group">
+                                            <input type="text" id="feedbackInput" class="form-control" placeholder="Write a comment..." aria-label="Feedback">
+                                            <button class="btn btn-primary" type="button" id="sendFeedBack">
+                                                <i class="bi bi-send"></i> Send
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
                             </div>
-
-
+                           
+                               
                             <div class="col-12 col-md-6 pb-1">
                                 <button type="submit"
                                         class="btn btn-primary bg-gradient  w-100 py-2 text-uppercase fw-semibold">
@@ -166,54 +166,6 @@
     </div>
 </form>
 
-
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-
- @*    
-    
-      
- <script>
-
-
-
-     $(document).ready( function () { 
-         $("#likeBtn").click(function (e) {
-             e.preventDefault();
-             sendVote(0); 
-         });
-
-         $("#dislikeBtn").click(function (e) {
-            e.preventDefault();
-             sendVote(1); 
-         });
-
-
-
-     function sendVote(voteType) {
-            $.ajax({
-                url: "/Customer/Home/Vote",
-                type: "POST",
-                data: {
-                    voteType: voteType,
-                    productId: @Model.ProductId
-                },
-                success: function (res) {
-                    if (res.success) {
-                        location.reload();
-                    }
-                   
-                },
-                error: function (err) {
-                    alert("An error occurred.");
-                }
-            });
-        })
-     } });
-</script>  
- *@
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
@@ -222,16 +174,19 @@
             e.preventDefault();
             sendVote(0); 
         });
-
         $("#dislikeBtn").click(function (e) {
             e.preventDefault();
             sendVote(1); 
         });
-
         function sendVote(voteType) {
+           
             $.ajax({
                 url: "/Customer/Home/Vote",
                 type: "POST",
+                 headers: {
+            "RequestVerificationToken":
+                $('input[name="__RequestVerificationToken"]').val()
+        },
                 data: {
                     voteType: voteType,
                     productId: @Model.ProductId
@@ -240,10 +195,43 @@
                     location.reload();
                 },
                 error: function () {
-                    alert("An error occurred.");
+                    alert("An error occurred...");
                 }
             });
         }
+
+        $("#sendFeedBack").click(function(){
+            const feedback=$("#feedbackInput").val();
+            
+            // console.log(feedback);
+            // console.log(@Model.ProductId);
+            // console.log(@Model.UserId);
+
+             $.ajax({
+                url: "/Customer/Home/AddFeedBack",
+                type: "POST",
+                 headers: {
+            "RequestVerificationToken":
+                $('input[name="__RequestVerificationToken"]').val()
+        },
+                data: {
+                    content:feedback,
+                    UserId:"@Model.UserId",
+                    productId: @Model.ProductId
+                },
+
+                success: function (res) {
+                   
+                    $("#feedBackContainer").addClass("fade-out-fast")
+                    location.reload();
+                   
+                },
+                error: function () {
+                   alert(response.message);
+                }
+            });
+
+        });
     });
 </script>
 

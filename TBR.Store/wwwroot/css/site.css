@@ -577,3 +577,84 @@ bg-success {
         background-color: #578553;
         border-color: #578553;
     }
+
+
+.fade-out-fast {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+
+
+/* Container Spacing */
+.feedback-section {
+    max-width: 500px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Success/Error Message Styling */
+.status-msg {
+    display: none; /* Hidden until AJAX success */
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.status-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Individual Feedback Cards */
+.feedback-card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.user-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.user-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.vote-tag {
+    font-size: 11px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+    .vote-tag.like {
+        background: #e7f3ff;
+        color: #007bff;
+    }
+
+    .vote-tag.dislike {
+        background: #fdecea;
+        color: #dc3545;
+    }
+
+.comment-text {
+    margin: 0;
+    color: #555;
+    font-size: 14px;
+}

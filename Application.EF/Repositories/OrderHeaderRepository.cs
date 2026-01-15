@@ -1,5 +1,6 @@
 ﻿using Application.EF.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace TBL.EF.Repositories
         public OrderHeaderRepository(AppDbContext context):base(context)
         {
             
-        }
+        }   
 
 		public async Task UpdateStatus(int id, string orderStatus, string? paymentStatus = null)
 		{
@@ -44,6 +45,14 @@ namespace TBL.EF.Repositories
 		 		orderHeader.PaymentIntentId = PaymentInytentId;
 				orderHeader.PaymentDate= DateTime.Now;
 		 	}
+		}
+		 public List<int> GetApprovedProduct(string userId)
+		{
+			var headers = _context.OrderHeader.Where(x => x.UserId == userId && x.OrderStatus == Payment_Status.PaymentStatusApproved).Select(x => x.Id).ToList();
+			var intendedDetails = _context.OrderDetails
+				.Where(x => headers.Any(h => x.OrderHeaderId == h)).Select(x=>x.ProductId).ToList();
+			return intendedDetails;
+		
 		}
 	}
 }

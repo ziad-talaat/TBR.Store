@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using TBL.Core.Enums;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace TBR.Store.Areas.Customer.Controllers
 {
@@ -28,16 +29,16 @@ namespace TBR.Store.Areas.Customer.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Index(string ?searchBy,string?searchValue,string ?sortBy,string ?value ,bool isAssending=true,int pageNumber=1)
+        public async Task<IActionResult> Index(string ?searchBy,string?searchValue,string ?sortBy,string ?categoryValue ,bool isAssending=true,int pageNumber=1)
         {
             
 
-            Pagination<Product> pageDetails=  _unitOfWork.Products.GetAllSortedAndFilterdInPage(searchBy,searchValue,sortBy, value, isAssending, pageNumber, new[] {nameof(Product.ProductImages)});
+            Pagination<Product> pageDetails=  _unitOfWork.Products.GetAllSortedAndFilterdInPage(searchBy,searchValue,sortBy, categoryValue, isAssending, pageNumber, new[] {nameof(Product.ProductImages)});
             ViewBag.CurrentSearchBy = searchBy;
             ViewBag.CurrentSearchValue = searchValue;
             ViewBag.CurrentSortBy = sortBy;
             ViewBag.CurrentOrder = isAssending;
-            ViewBag.CurrentCategory = value;
+            ViewBag.CurrentCategory = categoryValue;
             ViewBag.SearchItems = new List<SelectListItem>
             {
               new SelectListItem { Value = nameof(Product.Title), Text = "Title" , Selected = (searchBy == nameof(Product.Title))},
@@ -55,10 +56,10 @@ namespace TBR.Store.Areas.Customer.Controllers
             {
                 Value = x,
                 Text = x,
-                Selected = (value == x)
+                Selected = (categoryValue == x)
             }).ToList();
 
-
+            
             
 
             
@@ -73,10 +74,8 @@ namespace TBR.Store.Areas.Customer.Controllers
             var claimIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var vote = await _unitOfWork.Vote.GetSpecificVote(userId, id);
-
            string voteType = vote?.VoteType.ToString();
             ViewBag.CurrentVote= voteType;
-
             if (product==null)
             {
                 TempData["Error"] = "no such product ";
@@ -85,15 +84,22 @@ namespace TBR.Store.Areas.Customer.Controllers
             ShoppingCart cart = new()
             {
                 Product = product,
-                Count =1,
-                ProductId=id,
+                Count = 1,
+                ProductId = id,
+                UserId = userId.ToString()
             };
-
-                return View(cart);
-        }
-          
+            var Comminted = _unitOfWork.FeedBack.GetQueryy().FirstOrDefault(x => x.UserId == userId && x.ProductId == id);
            
-          [HttpPost]
+
+                ViewBag.CanComment = false ;
+            var boughtProductsIds=  _unitOfWork.OrderHeader.GetApprovedProduct(userId);
+            if(boughtProductsIds.Any(x=>x==id) && Comminted is null) {
+                ViewBag.CanComment = true;
+            }
+           
+                return View(cart);
+        }   
+        [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
         public async Task<IActionResult> Details(ShoppingCart cart)
@@ -120,16 +126,12 @@ namespace TBR.Store.Areas.Customer.Controllers
                 catch (DbUpdateException ex)
                 {
                     TempData["Error"] = ex.Message;
-
                 }
             }
-
-
             return RedirectToAction(nameof(HomeController.Index));
         }
 
         [HttpPost]
-        //[ValidateAntiForgeryToken]
         [Authorize]
         public async Task<IActionResult> Vote(Voting voteType,int productId)
         {
@@ -141,8 +143,6 @@ namespace TBR.Store.Areas.Customer.Controllers
                 return Unauthorized();
             }
 
-
-
             var existingVote = await _unitOfWork.Vote.GetSpecificVote(userId, productId);
 
             if (existingVote != null)
@@ -150,19 +150,15 @@ namespace TBR.Store.Areas.Customer.Controllers
                 if (voteType == existingVote.VoteType)
                 {
                     _unitOfWork.Vote.Remove(existingVote);
-
                 }
                 else
                 {
                     existingVote.VoteType = voteType;
                     existingVote.VotingTime = DateTime.Now;
                     _unitOfWork.Vote.Update(existingVote);
-
                 }
                 await _unitOfWork.CompleteAsync();
-
             }
-
             else
             {
                 UserProduct_Voting newVote = new UserProduct_Voting()
@@ -184,9 +180,32 @@ namespace TBR.Store.Areas.Customer.Controllers
             }
 
 
-            return RedirectToAction("Details",  new { id = productId });
+            //return RedirectToAction("Details",  new { id = productId });
+            return Json(true);
         }
 
-        
+        [HttpPost]
+        [Authorize]
+        public IActionResult AddFeedBack(FeedBackVM feedBack)
+        {
+            if (!ModelState.IsValid)
+                return Json(new {status=false,message="Invalid Input"});
+            var Comminted=_unitOfWork.FeedBack.GetQueryy().FirstOrDefault(x=>x.UserId== feedBack.UserId&&x.ProductId==feedBack.productId);
+            if(Comminted!=null)
+                return Json(new { status = false, message = "there is a comment" });
+            var comment = new FeedBack()
+            {
+                UserId = feedBack.UserId,
+                ProductId = feedBack.productId,
+                IsEdited = false,
+                Date = DateTime.Now,
+                Comment = feedBack.content
+            };
+            _unitOfWork.FeedBack.AddAsync(comment);
+            _unitOfWork.CompleteAsync();
+            return Json(new { status = true, message = "comment added successfully" });
+        }
+
+    
     }
 }

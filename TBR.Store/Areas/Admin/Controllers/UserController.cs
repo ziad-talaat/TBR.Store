@@ -30,10 +30,6 @@ namespace TBR.Store.Areas.Admin.Controllers
         {
             return View();
         }
-
-       
-
-
       
         [HttpGet]
         public async Task<IActionResult> Delete(int id)

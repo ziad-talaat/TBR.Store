@@ -1,0 +1,21 @@
+﻿@using TBL.Core.ViewModel
+@model List<FeedBackUserVM>
+<div class="feedback-section">
+
+ 
+    @foreach(var item in Model)
+    {
+        
+    <div class="feedback-list">
+        <h5>@item.Date</h5>
+        <div style="background-color:beige" id="feedbackItems">
+            <div class="feedback-card">
+                <div class="user-info">
+                    <h4 class="user-name">@item.UserName</h4>
+                </div>
+                <h1 class="comment-text">@item.Message</h1>
+            </div>
+        </div>
+    </div>
+    }
+</div>

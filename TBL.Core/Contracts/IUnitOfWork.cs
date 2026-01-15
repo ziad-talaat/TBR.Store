@@ -19,6 +19,7 @@ namespace TBL.Core.Contracts
         IBaseRepository<Company> Company { get; }
         IBaseRepository<ProductImages> ProductImages { get; }
         IBaseRepository<UserProduct_Voting> UserProduct_Voting { get; }
+         IBaseRepository<FeedBack> FeedBack { get;}
         Task CompleteAsync();
      
     }

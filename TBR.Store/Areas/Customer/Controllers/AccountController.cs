@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -40,6 +41,7 @@ namespace TBR.Store.Areas.Customer.Controllers
 
 
         [HttpGet]
+        [Authorize("NotAuthorized")]
         public async Task<IActionResult> Register()
         {
            
@@ -62,6 +64,7 @@ namespace TBR.Store.Areas.Customer.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize("NotAuthorized")]
         public async Task<IActionResult> Register(RegisterVM registerVM, IFormFile? file)
         {
             
@@ -133,6 +136,7 @@ namespace TBR.Store.Areas.Customer.Controllers
 
 
         [HttpGet]
+        [Authorize("NotAuthorized")]
         public IActionResult Login(string returnUrl=null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -140,6 +144,7 @@ namespace TBR.Store.Areas.Customer.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize("NotAuthorized")]
         public async Task<IActionResult> Login(LoginVM loginVM,string url=null)
         {
             url= url ?? Url.Content("~/");
@@ -193,6 +198,16 @@ namespace TBR.Store.Areas.Customer.Controllers
                 Text = x.Name,
                 Value = x.Name
             }).ToListAsync();
+        }
+
+
+        public async Task<IActionResult> IsEmailAlreadyExist(string email)
+        {
+            var user=await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return Json(true);
+            else 
+                return Json(false);
         }
 
     }

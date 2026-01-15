@@ -1,7 +1,7 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-
 namespace TBL.Core.ViewModel
 {
     public class RegisterVM
@@ -11,17 +11,16 @@ namespace TBL.Core.ViewModel
 
         [Required]
         [EmailAddress]
+        [Remote(action: "IsEmailAlreadyExist",controller:"Account",ErrorMessage ="email already in use")]
         public string Email { get; set; }
 
         public string Address { get; set; }
         [Required(ErrorMessage = "Can't be blank")]
         public string PostalCode { get; set; }
-
         [Required(ErrorMessage ="must provide a number")]
         [DataType(DataType.PhoneNumber)]
         [RegularExpression(@"^\d{11}$", ErrorMessage = "Phone number must be exactly 11 digits.")]
         public string PhoneNumber { get; set; }
-
 
         public string? ImageUrl { get; set; }
 
