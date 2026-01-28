@@ -48,11 +48,11 @@ namespace TBL.EF.Repositories
 		}
 		 public List<int> GetApprovedProduct(string userId)
 		{
+
 			var headers = _context.OrderHeader.Where(x => x.UserId == userId && x.OrderStatus == Payment_Status.PaymentStatusApproved).Select(x => x.Id).ToList();
 			var intendedDetails = _context.OrderDetails
-				.Where(x => headers.Any(h => x.OrderHeaderId == h)).Select(x=>x.ProductId).ToList();
+				.Where(x => headers.Any(h => x.OrderHeaderId == h)).Select(x => x.ProductId).ToList();
 			return intendedDetails;
-		
 		}
 	}
 }

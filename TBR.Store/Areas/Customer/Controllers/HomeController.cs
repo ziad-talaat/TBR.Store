@@ -150,14 +150,17 @@ namespace TBR.Store.Areas.Customer.Controllers
                 if (voteType == existingVote.VoteType)
                 {
                     _unitOfWork.Vote.Remove(existingVote);
+                    await _unitOfWork.CompleteAsync();
+                    return Json(new { status = true, data = $"x{voteType}" });
                 }
                 else
                 {
                     existingVote.VoteType = voteType;
                     existingVote.VotingTime = DateTime.Now;
                     _unitOfWork.Vote.Update(existingVote);
+                    await _unitOfWork.CompleteAsync();
+                    return Json(new { status = true, data = $"o{voteType}" });
                 }
-                await _unitOfWork.CompleteAsync();
             }
             else
             {
@@ -172,16 +175,15 @@ namespace TBR.Store.Areas.Customer.Controllers
                 {
                    await  _unitOfWork.Vote.AddAsync(newVote);
                     await _unitOfWork.CompleteAsync();
+                    return Json(new { status = true, data = $"o{voteType}" });
                 }
                 catch(DbUpdateException ex)
                 {
                     TempData["Error"] = "some error while voting try later";
+                    return Json(new { status = false });
                 }
             }
-
-
-            //return RedirectToAction("Details",  new { id = productId });
-            return Json(true);
+           
         }
 
         [HttpPost]
