@@ -1,21 +1,39 @@
 ﻿@using TBL.Core.ViewModel
 @model List<FeedBackUserVM>
-<div class="feedback-section">
+
+<div style="padding-left:115px" class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="page-header">
+                <h1 class="pull-right">@ViewBag.commentCount comments  </h1>
+            </div>
+            <div class="comments-list">
 
  
     @foreach(var item in Model)
     {
-        
-    <div class="feedback-list">
-        <h5>@item.Date</h5>
-        <div style="background-color:blanchedalmond" id="feedbackItems">
-            <div class="feedback-card">
-                <div class="user-info">
-                    <h4 class="user-name">@item.UserName</h4>
+             <div style="padding-bottom:20px" class="media">
+                    <p class="pull-right"><small>@item.Date</small></p>
+                        <a class="media-left" asp-area="Customer" asp-controller="User" asp-action="getUserPage" asp-route-id="@item.Id">
+                            <img style="width:50px;height:50px;border-radius:50%" src="@(item.ImageUrl ?? Url.Content("~/images/Users/cat.jpg"))">
+                    </a>
+                    <div class="media-body">
+
+                        <h4 class="media-heading user_name">@item.UserName</h4>
+                       @item.Message
+
+                    </div>
                 </div>
-                <h1 class="comment-text">@item.Message</h1>
+    }
             </div>
         </div>
     </div>
-    }
 </div>
+
+
+
+            
+
+
+
+

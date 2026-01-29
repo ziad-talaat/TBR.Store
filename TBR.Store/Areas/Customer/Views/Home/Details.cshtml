@@ -132,22 +132,8 @@
                                 </div>
 
                                
-                                <div>
-                                    @await Component.InvokeAsync("FeedBackPerProduct", new { productId = Model.ProductId })
-                                </div>
-
-                                @if (ViewBag.CanComment)
-                                {
-                                    <div id="feedBackContainer" class="col-12 col-md-6 mt-3">
-                                        <label for="feedbackInput" class="form-label ms-2 fw-bold">Leave Your Feedback</label>
-                                        <div class="input-group">
-                                            <input type="text" id="feedbackInput" class="form-control" placeholder="Write a comment..." aria-label="Feedback">
-                                            <button class="btn btn-primary" type="button" id="sendFeedBack">
-                                                <i class="bi bi-send"></i> Send
-                                            </button>
-                                        </div>
-                                    </div>
-                                }
+                               
+                               
                             </div>
                            
                                
@@ -161,9 +147,30 @@
                     </div>
 
                 </div>
+
             </div>
         </div>
+       
+       
+
+            @await Component.InvokeAsync("FeedBackPerProduct", new { productId = Model.ProductId })
+
+
+
+        @if (ViewBag.CanComment)
+        {
+            <div id="feedBackContainer" class="col-12 col-md-6 mt-3">
+                <label for="feedbackInput" class="form-label ms-2 fw-bold">Leave Your Feedback</label>
+                <div class="input-group">
+                    <input type="text" id="feedbackInput" class="form-control" placeholder="Write a comment..." aria-label="Feedback">
+                    <button class="btn btn-primary" type="button" id="sendFeedBack">
+                        <i class="bi bi-send"></i> Send
+                    </button>
+                </div>
+            </div>
+        }
     </div>
+
 </form>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -250,10 +257,8 @@
                 },
 
                 success: function (res) {
-                   
                     $("#feedBackContainer").addClass("fade-out-fast")
                     location.reload();
-                   
                 },
                 error: function () {
                    alert(response.message);

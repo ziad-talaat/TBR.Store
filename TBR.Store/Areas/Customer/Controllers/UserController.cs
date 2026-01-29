@@ -48,7 +48,25 @@ namespace TBR.Store.Areas.Customer.Controllers
                 Address=user.Address,
             };
             return View(userPageVM);
-        }   
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> getUserPage(string id)
+        {
+            ApplicationUser? user = await _unitOfWork.User.GetOneAsync(id);
+            if(user is null)
+                return Unauthorized("user Not authenticated");
+            UserPageVM userPageVM = new UserPageVM()
+            {
+                ImageUrl = user?.ImageUrl,
+                UserName = user?.UserName ?? "No Name Exist",
+                Email = user?.Email ?? "No email Exist",
+                PhoneNumber = user?.PhoneNumber,
+                Address = user.Address,
+            };
+            ViewBag.Id = id;
+            return View("Index", userPageVM);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]

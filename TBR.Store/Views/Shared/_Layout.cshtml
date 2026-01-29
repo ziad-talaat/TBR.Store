@@ -20,7 +20,12 @@
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
-<body> 
+<body style="
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    margin:0;
+">
 
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-brand bg-primary border-bottom box-shadow mb-3"> 
@@ -101,7 +106,13 @@
         </main>
     </div>
 
-    <footer class="border-top footer bg-primary text-muted">
+    <footer style=" width:100%;
+        line-height:60px;
+        text-align:center;
+        background:#0d6efd;
+        color:white;
+        margin-top:auto;
+        white-space:nowrap;">
         <div class="text-center text-bg-primary">
            Made With<i class="bi bi-balloon-heart-fill  text-bg-dark"></i>by ziad Talaat
         </div>

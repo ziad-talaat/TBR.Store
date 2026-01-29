@@ -23,8 +23,15 @@ namespace TBL.Core.ViewComponants
         {
           var feedBAcks= await _unitOfWork.FeedBack.GetAllAsync(x => x.ProductId == productId, false, new[] {nameof(FeedBack.User)});
 
-            var result = feedBAcks.Select(x => new FeedBackUserVM { UserName = x.User.Email, Message = x.Comment,Date=x.Date.Humanize() }).ToList();
-            
+           
+            var result = feedBAcks.Select(x => new FeedBackUserVM
+            { UserName = x.User.Email,
+              Id=x.UserId,
+                Message = x.Comment,
+                Date = x.Date.Humanize(),
+                ImageUrl = x.User?.ImageUrl,
+            }).ToList();
+            ViewBag.commentCount = _unitOfWork.Products.FeedBacksCount(productId);
             return View(result);
         }
     }

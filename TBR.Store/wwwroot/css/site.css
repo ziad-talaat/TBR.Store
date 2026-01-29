@@ -268,6 +268,13 @@ bg-success {
 
 /* btn-primary */
 
+.footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+}
 
 
 .btn-primary {
@@ -658,3 +665,15 @@ bg-success {
     color: #555;
     font-size: 14px;
 }
+
+
+.user_name {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.comments-list .media {
+    border-bottom: 1px dotted #ccc;
+  
+}
+

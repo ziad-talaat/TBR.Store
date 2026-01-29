@@ -96,11 +96,11 @@ namespace TBL.EF.Repositories
 
           Pagination<Product>pageDetails= Pagination<Product>.GetPage(query, page, 8);
             return pageDetails;
-     } 
+     }
 
 
 
-
+      public  int FeedBacksCount(int id) => _context.FeedBacks.Where(x => x.ProductId == id).Count();
 
 
 

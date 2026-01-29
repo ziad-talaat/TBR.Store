@@ -1,4 +1,5 @@
-﻿
+﻿@using System.Security.Claims
+
 
 
 @model UserPageVM
@@ -9,7 +10,11 @@
     string profileImage = string.IsNullOrEmpty(Model.ImageUrl)
         ? Url.Content("~/images/Users/cat.jpg")
         : Url.Content(Model.ImageUrl);
+
+        
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 }
+
 
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -25,6 +30,8 @@
                         <input name="file" id="fileInput" type="file" class="d-none" onchange="document.getElementById('uploadForm').submit()" />
                     </form>
 
+                    @if (userId==ViewBag.Id)
+                    {
                     <a href="javascript:void(0);" id="changeImageLink" class="btn btn-outline-primary btn-sm mt-3 me-2">
                         Change Image
                     </a>
@@ -36,6 +43,7 @@
                     <a asp-action="EditUSerInfo" asp-controller="User" class="btn btn-outline-info btn-sm mt-3 me-2">
                         Edit Profile
                     </a>
+                    }
                 </div>
             </div>
 
