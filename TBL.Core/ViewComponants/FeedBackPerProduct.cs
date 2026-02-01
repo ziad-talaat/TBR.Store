@@ -26,10 +26,11 @@ namespace TBL.Core.ViewComponants
            
             var result = feedBAcks.Select(x => new FeedBackUserVM
             { UserName = x.User.Email,
-              Id=x.UserId,
+              UserId=x.UserId,
                 Message = x.Comment,
                 Date = x.Date.Humanize(),
                 ImageUrl = x.User?.ImageUrl,
+                CommentId=x.Id
             }).ToList();
             ViewBag.commentCount = _unitOfWork.Products.FeedBacksCount(productId);
             return View(result);

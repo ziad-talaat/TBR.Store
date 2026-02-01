@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using TBL.Core.Models;
-
 namespace TBL.Core.Contracts
 {
     public interface IBaseRepository<T>where T:class

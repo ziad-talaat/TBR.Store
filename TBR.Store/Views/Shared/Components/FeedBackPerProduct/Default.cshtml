@@ -1,5 +1,12 @@
-﻿@using TBL.Core.ViewModel
+﻿@using System.Security.Claims
+@using TBL.Core.ViewModel
 @model List<FeedBackUserVM>
+
+@{
+    var claimsIdentity = (ClaimsIdentity)User.Identity;
+    var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    
+}
 
 <div style="padding-left:115px" class="container">
     <div class="row">
@@ -14,21 +21,50 @@
     {
              <div style="padding-bottom:20px" class="media">
                     <p class="pull-right"><small>@item.Date</small></p>
-                        <a class="media-left" asp-area="Customer" asp-controller="User" asp-action="getUserPage" asp-route-id="@item.Id">
+                        <a class="media-left" asp-area="Customer" asp-controller="User" asp-action="getUserPage" asp-route-id="@item.UserId">
                             <img style="width:50px;height:50px;border-radius:50%" src="@(item.ImageUrl ?? Url.Content("~/images/Users/cat.jpg"))">
                     </a>
-                    <div class="media-body">
+                    <div style="position:relative" class="media-body">
 
                         <h4 class="media-heading user_name">@item.UserName</h4>
                        @item.Message
 
+                            @if (userId == item.UserId)
+                            {
+                                <div style="position:absolute;right:15px;top:-20px" class="verticall-dot">
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                </div>
+                            }
+
+                            @if (userId == item.UserId)
+                            {
+                                <div class="comment-operations">
+                                    <a asp-area="Customer" asp-controller="Home" asp-action="" asp-route-commentId="@item">Update</a>
+                                    <hr />
+                                    <a asp-area="Customer" asp-controller="Home" asp-action="DeleteComment" asp-route-commentId="@item.CommentId">Delete</a>
+                                </div>
+                            }
+
                     </div>
-                </div>
+                        
+             </div>
     }
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $('.comment-operations').click(function(){
+            console.log('rwetet');
+        });
+        
+     
+    </script>
+}
 
 
 

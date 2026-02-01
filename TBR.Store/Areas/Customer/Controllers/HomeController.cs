@@ -208,6 +208,23 @@ namespace TBR.Store.Areas.Customer.Controllers
             return Json(new { status = true, message = "comment added successfully" });
         }
 
-    
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult DeleteComment(int commentId)
+        {
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+                return Json(false);
+            var comment= _unitOfWork.FeedBack.GetQueryy().SingleOrDefault(x => x.Id == commentId);
+
+            if (comment is null || userId != comment.UserId)
+                return Json(false);
+
+            _unitOfWork.FeedBack.Remove(comment);
+            _unitOfWork.CompleteAsync();
+            return Json(true);
+        }
     }
 }
