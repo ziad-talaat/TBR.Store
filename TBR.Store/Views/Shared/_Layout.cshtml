@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 
 
@@ -85,7 +87,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link text-bg-light d-flex align-items-center" asp-area="Customer" asp-controller="Cart" asp-action="Index">
                                             <i class="bi bi-cart"></i>
-                                            <span class="ms-1">(@await Component.InvokeAsync("Cart"))</span>
+                                            <span class="ms-1">@await Component.InvokeAsync("Cart")</span>
                                         </a>
                                     </li>
                                 }

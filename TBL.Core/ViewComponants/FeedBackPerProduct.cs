@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Humanizer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TBL.Core.Contracts;
 using TBL.Core.Models;
 using TBL.Core.ViewModel;
@@ -21,7 +22,7 @@ namespace TBL.Core.ViewComponants
         }
         public async Task<IViewComponentResult> InvokeAsync(int productId)
         {
-          var feedBAcks= await _unitOfWork.FeedBack.GetAllAsync(x => x.ProductId == productId, false, new[] {nameof(FeedBack.User)});
+          var feedBAcks= await _unitOfWork.FeedBack.GetQueryy().Include( nameof(FeedBack.User)).Where(x => x.ProductId == productId).OrderByDescending(x=>x.Date).ToListAsync();
 
            
             var result = feedBAcks.Select(x => new FeedBackUserVM
@@ -30,7 +31,8 @@ namespace TBL.Core.ViewComponants
                 Message = x.Comment,
                 Date = x.Date.Humanize(),
                 ImageUrl = x.User?.ImageUrl,
-                CommentId=x.Id
+                CommentId=x.Id,
+                IsEdited=x.IsEdited
             }).ToList();
             ViewBag.commentCount = _unitOfWork.Products.FeedBacksCount(productId);
             return View(result);

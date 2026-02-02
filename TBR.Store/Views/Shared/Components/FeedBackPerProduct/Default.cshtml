@@ -1,70 +1,140 @@
 ﻿@using System.Security.Claims
+@using Humanizer
 @using TBL.Core.ViewModel
 @model List<FeedBackUserVM>
-
 @{
     var claimsIdentity = (ClaimsIdentity)User.Identity;
     var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    
 }
-
 <div style="padding-left:115px" class="container">
     <div class="row">
         <div class="col-md-8">
             <div class="page-header">
-                <h1 class="pull-right">@ViewBag.commentCount comments  </h1>
+                <h1 class="pull-left">@ViewBag.commentCount comments  </h1>
             </div>
             <div class="comments-list">
-
- 
     @foreach(var item in Model)
     {
-             <div style="padding-bottom:20px" class="media">
-                    <p class="pull-right"><small>@item.Date</small></p>
+                    <div style="padding-bottom:20px;height:fit-content;min-height:50px;" class="media">
+                    <p class="pull-right"><small>@item.Date @(item.IsEdited?"(Edited)":"") </small></p>
                         <a class="media-left" asp-area="Customer" asp-controller="User" asp-action="getUserPage" asp-route-id="@item.UserId">
                             <img style="width:50px;height:50px;border-radius:50%" src="@(item.ImageUrl ?? Url.Content("~/images/Users/cat.jpg"))">
                     </a>
-                    <div style="position:relative" class="media-body">
+                    <div style="position:relative;width:500px;" class="media-body">
 
                         <h4 class="media-heading user_name">@item.UserName</h4>
-                       @item.Message
-
+                            <div  readonly id="messageContainer" style="white-space:normal; word-break:normal;overflow-wrap:normal"  >
+                                @item.Message
+                            </div>
                             @if (userId == item.UserId)
                             {
-                                <div style="position:absolute;right:15px;top:-20px" class="verticall-dot">
+                                <div style="position:absolute;right:-59px;top:29px" class="verticall-dot">
                                     <div class="dot"></div>
                                     <div class="dot"></div>
                                     <div class="dot"></div>
                                 </div>
+                                <i style="font-size:larger;cursor:pointer" class="hidden fa-solid fa-paper-plane"></i>
                             }
-
                             @if (userId == item.UserId)
                             {
-                                <div class="comment-operations">
-                                    <a asp-area="Customer" asp-controller="Home" asp-action="" asp-route-commentId="@item">Update</a>
+                                <div class="comment-operations hidden">
+                                    <a class="updateBtn" data-comment-id="@item.CommentId" asp-area="Customer" asp-controller="Home" asp-action="UpdateComment" asp-route-commentId="@item">Update</a>
                                     <hr />
-                                    <a asp-area="Customer" asp-controller="Home" asp-action="DeleteComment" asp-route-commentId="@item.CommentId">Delete</a>
+                                    <a class="deleteBtn" data-comment-id="@item.CommentId" asp-area="Customer" asp-controller="Home" asp-action="DeleteComment" asp-route-commentId="@item">Delete</a>
                                 </div>
                             }
-
                     </div>
-                        
              </div>
     }
             </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
     <script>
-        $('.comment-operations').click(function(){
-            console.log('rwetet');
-        });
-        
-     
+    const btn=document.querySelector('.verticall-dot');
+    btn.addEventListener('click',function(){
+        const operations=document.querySelector('.comment-operations');
+        operations.classList.toggle('hidden');
+	});
+      
+           const deleteBtn = document.querySelector('.deleteBtn');
+       if(deleteBtn){
+           deleteBtn.addEventListener('click', function(e){
+               e.preventDefault();
+                      const commentId = deleteBtn.dataset.commentId;
+    
+                    
+               if(!commentId) return;
+
+               if(confirm('Are you sure you want to delete your comment?')){
+                   $.ajax({
+                       url: '/Customer/Home/DeleteComment',
+                       type: 'POST',
+                             data: { commentID: commentId,__RequestVerificationToken:
+         $('input[name="__RequestVerificationToken"]').val() },
+                       success: function(res){
+                           // if(res===true)
+                           // {
+                           //    const media= deleteBtn.closest('.media');
+                           //    if(media){
+                           //    media.remove();
+                           //    }
+                           // }
+                           location.reload();
+                       },
+                       error: function(xhr, status, error){
+                           console.error('Error:', error);
+                       }
+                   });
+               }
+           });
+       }
+
+        const updateBtn = document.querySelector('.updateBtn');
+                  const container= document.querySelector('#messageContainer');
+      
+           updateBtn.addEventListener('click', function(e){
+               e.preventDefault();
+                    
+                  const send= document.querySelector('.fa-solid');
+                  const comment= document.querySelector('.comment-operations');
+
+                  send.classList.remove('hidden');
+
+                  comment.classList.toggle('hidden');
+                 container.contentEditable = true;
+                 container.focus();
+           });
+                    
+               const send=document.querySelector('.fa-solid');
+               const edited=document.querySelector('.pull-right');
+               send.addEventListener('click', function(e){
+               e.preventDefault();
+               debugger;
+                       const commentId = updateBtn.dataset.commentId;
+               if(!commentId) return;
+                   $.ajax({
+                       url: '/Customer/Home/UpdateComment',
+                       type: 'POST',
+                        data:{ 
+                              CommentId: commentId,
+                              Content:container.textContent,
+                                 __RequestVerificationToken:$('input[name="__RequestVerificationToken"]').val()
+                        },
+                       success: function(res){
+                         edited.innerHTML=`<small>${res.newDate}(Edited) </small>`
+                         container.textContent=res.newContent;
+                         send.classList.add('hidden');
+                       },
+                       error: function(error){
+                           console.error('Error:', error);
+                       }
+                   });
+                  });
     </script>
-}
+
+
+
 
 
 

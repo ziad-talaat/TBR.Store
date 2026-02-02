@@ -702,11 +702,26 @@ bg-success {
      flex-direction:column;
      background-color:#ece9e9;
      position:absolute;
-     right:25px;
-     top:-20px;
-/*     visibility:hidden;*/
+     right:-52px;
+     top:26px;
+     
+}
+.hidden {
+    visibility: hidden;
 }
 .comment-operations a{
     text-decoration:none;
     font-size:large;
 }
+
+/*#messageContainer {
+    all: unset;*/ /* remove all browser default styles */
+    /*display: block;*/ /* behave like block element */
+    /*width: 100%;*/ /* optional */
+    /*min-height: 30px;*/ /* optional */
+    /*padding: 0;*/ /* optional */
+    /*font: inherit;*/ /* inherit font from parent */
+    /*background: transparent;
+    resize: none;*/ /* prevent manual resizing */
+    /*border:none;
+}*/

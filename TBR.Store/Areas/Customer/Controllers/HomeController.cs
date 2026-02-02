@@ -13,6 +13,8 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using TBL.Core.Enums;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Threading.Tasks;
+using Humanizer;
 
 namespace TBR.Store.Areas.Customer.Controllers
 {
@@ -188,43 +190,84 @@ namespace TBR.Store.Areas.Customer.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult AddFeedBack(FeedBackVM feedBack)
+        public async Task<IActionResult> AddFeedBack(FeedBackVM feedBack)
         {
             if (!ModelState.IsValid)
                 return Json(new {status=false,message="Invalid Input"});
-            var Comminted=_unitOfWork.FeedBack.GetQueryy().FirstOrDefault(x=>x.UserId== feedBack.UserId&&x.ProductId==feedBack.productId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null)
+                return Json(new { status = false, message = "Not Authorized" });
+
+            var Comminted=_unitOfWork.FeedBack.GetQueryy().FirstOrDefault(x=>x.UserId== userId && x.ProductId==feedBack.ProductId);
             if(Comminted!=null)
                 return Json(new { status = false, message = "there is a comment" });
             var comment = new FeedBack()
             {
-                UserId = feedBack.UserId,
-                ProductId = feedBack.productId,
+                UserId = userId,
+                ProductId = feedBack.ProductId,
                 IsEdited = false,
                 Date = DateTime.Now,
-                Comment = feedBack.content
+                Comment = feedBack.Content
             };
-            _unitOfWork.FeedBack.AddAsync(comment);
-            _unitOfWork.CompleteAsync();
+            try
+            {
+
+            await _unitOfWork.FeedBack.AddAsync(comment);
+           await  _unitOfWork.CompleteAsync();
             return Json(new { status = true, message = "comment added successfully" });
+            }
+            catch(DbUpdateException)
+            {
+            return Json(new { status = false, message = "Error" });
+            }
         }
 
 
-        [HttpGet]
+        [HttpPost]
         [Authorize]
-        public IActionResult DeleteComment(int commentId)
+        public async Task<IActionResult> DeleteComment(int commentID)
         {
             var claimIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
                 return Json(false);
-            var comment= _unitOfWork.FeedBack.GetQueryy().SingleOrDefault(x => x.Id == commentId);
+            var comment= _unitOfWork.FeedBack.GetQueryy().SingleOrDefault(x => x.Id == commentID);
 
             if (comment is null || userId != comment.UserId)
                 return Json(false);
 
-            _unitOfWork.FeedBack.Remove(comment);
-            _unitOfWork.CompleteAsync();
+           _unitOfWork.FeedBack.Remove(comment);
+          await  _unitOfWork.CompleteAsync();
             return Json(true);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> UpdateComment(FeedBackVM feedBackVM)
+        {
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+                return Json(false);
+
+            var comment = _unitOfWork.FeedBack.GetQueryy().AsTracking().SingleOrDefault(x => x.Id ==feedBackVM.CommentId);
+
+            if (comment is null || userId != comment.UserId)
+                return Json(false);
+
+                comment.Comment = feedBackVM.Content;
+                comment.IsEdited = true;
+                comment.Date = DateTime.Now;
+            try
+            {
+                await _unitOfWork.CompleteAsync();
+                return Json(new {status=true,NewContent=comment.Comment,NewDate=comment.Date.Humanize()});
+            }
+
+            catch (DbUpdateException)
+            {
+                return Json(false);
+            }
         }
     }
 }

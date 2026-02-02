@@ -10,10 +10,9 @@ namespace TBL.Core.ViewModel
     public class FeedBackVM
     {
         [Required]
-        public string UserId { get; set; }
+        public int ProductId { get; set; }
         [Required]
-        public int productId { get; set; }
-        [Required]
-        public string content { get; set; }
+        public string Content { get; set; }
+        public int? CommentId { get; set; }
     }
 }

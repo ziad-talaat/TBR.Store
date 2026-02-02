@@ -37,6 +37,8 @@ namespace Application.EF.Data
                 .IsRequired(false);
 
 
+            modelBuilder.Entity<FeedBack>().HasIndex(x => new { x.UserId, x.ProductId }).IsUnique();
+
             modelBuilder.Entity<ApplicationUser>().HasIndex(x => x.UserName).IsUnique();
             modelBuilder.Entity<ApplicationUser>().HasIndex(x => x.Email).IsUnique();
 
