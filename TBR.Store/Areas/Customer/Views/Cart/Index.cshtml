@@ -1,139 +1,4 @@
-﻿@* @model CartVM
-<form method="post">
-    <br />
-    <div class="card shadow border-0">
-        <div class="card-header bg-secondary bg-gradient text-light ml-0 py-4">
-            <div class="row px-4">
-                <div class="col-6">
-                    <h5 class="pt-2 text-white">
-                        Shopping Cart
-                    </h5>
-                </div>
-
-            </div>
-        </div>
-        <div class="card-body my-4">
-            <div class="row">
-            </div>
-            <div class="row mb-3 pb-3">
-                <div class="col-md-2 offset-md-1">
-                    <a asp-action="Index" asp-controller="Home" class="btn btn-outline-primary text-uppercase mb-5 btn-sm"><small>Continue Shopping</small></a>
-                </div>
-                <div class="col-md-10 offset-md-1">
-
-                    @foreach (var item in Model.CartList.Select((cartItem, index) => new { cartItem, index }))
-                    {
-                        var uniqueId = "carousel_" + item.index; // unique ID for each carousel
-
-                        <div class="row border-bottom pb-3">
-                            <div class="d-none d-lg-block col-lg-2 text-center py-2">
-                                @if (item.cartItem.Product.ProductImages != null && item.cartItem.Product.ProductImages.Count > 0)
-                                {
-                                    <div id="@uniqueId" class="carousel slide" data-bs-ride="carousel">
-                                        <div class="carousel-indicators">
-                                            @foreach (var imageWithIndex in item.cartItem.Product.ProductImages
-                                                                                .Select((image, i) => new { Image = image, Index = i }))
-                                            {
-                                                <button type="button"
-                                                        data-bs-target="#@uniqueId"
-                                                        data-bs-slide-to="@imageWithIndex.Index"
-                                                        class="@(imageWithIndex.Index == 0 ? "active" : "")"
-                                                        aria-current="@(imageWithIndex.Index == 0 ? "true" : "false")"
-                                                        aria-label="Slide @imageWithIndex.Index"></button>
-                                            }
-                                        </div>
-
-                                        <div class="carousel-inner">
-                                            @foreach (var imageWithIndex in item.cartItem.Product.ProductImages
-                                                                                .Select((image, i) => new { Image = image, Index = i }))
-                                            {
-                                                <div class="@(imageWithIndex.Index == 0 ? "carousel-item active" : "carousel-item")">
-                                                    <img src="@imageWithIndex.Image.ImageIrl" class="d-block w-100" alt="Product image">
-                                                </div>
-                                            }
-                                        </div>
-
-                                        <button class="carousel-control-prev" type="button" data-bs-target="#@uniqueId" data-bs-slide="prev">
-                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Previous</span>
-                                        </button>
-                                        <button class="carousel-control-next" type="button" data-bs-target="#@uniqueId" data-bs-slide="next">
-                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Next</span>
-                                        </button>
-                                    </div>
-                                }
-                            </div>
-
-                            <div class="col-12 col-lg-6 pt-md-3">
-                                <h5 class="text-uppercase text-secondary"><strong>@item.Product.Title</strong></h5>
-                                <p><small>@item.Product.Describtion</small></p>
-                            </div>
-                            <div class="col-12  col-lg-5 text-center row">
-                                <div class="col-3 text-md-right pt-2 pt-md-4">
-                                    <h6 class="fw-semibold">
-                                        @item.Price.ToString("c")
-                                        <span class="text-muted">&nbsp;x&nbsp;</span>@item.Count
-                                    </h6>
-                                </div>
-                                <div class="col-6 col-sm-4 col-lg-6 pt-2">
-                                    <div class="w-75 btn-group" role="group">
-                                        <a asp-action="Plus" asp-controller="Cart" asp-route-cartId="@item.Id" class="btn btn-outline-primary bg-gradient py-2">
-                                            <i class="bi bi-plus-square"></i>
-                                        </a> &nbsp;
-                                        <a asp-action="Minus" asp-controller="Cart" asp-route-cartId="@item.Id" class="btn btn-outline-primary bg-gradient py-2">
-                                            <i class="bi bi-dash-square"></i>
-                                        </a>
-                                    </div>
-
-                                </div>
-                                <div class="col-3 col-sm-4 col-lg-2 offset-lg-1 text-right pt-2">
-                                    <a asp-action="Delete" asp-controller="Cart" asp-route-cartId="@item.Id" class="btn btn-danger bg-gradient py-2 ">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </a>
-                                </div> 
-
-
-
-
-                            </div>
-
-                        </div>
-
-                    
-                 
-                       
-
-
-          }
-                </div>
-            </div>
-            <div class="card-footer bg-white border-0">
-                <div class="row">
-                    <div class="col-md-4 offset-md-4">
-                        <ul class="list-group mb-4">
-                            <li class="d-flex justify-content-between align-items-center">
-                                <h5 class="text-dark fw-semibold text-uppercase"> Total (USD)</h5>
-                                <h4 class="text-dark fw-bolder"> @Model.OrderTotal.ToString("c")</h4>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="row">
-                    @if (Model.CartList.Count() > 0)
-                    {
-                        <div class="col-md-2 offset-md-5">
-                            <a asp-action="Summary" class="btn btn-primary border-0 bg-gradient w-100 py-2">Summary</a>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-</form>
- *@
-
-
-@model CartVM
+﻿@model CartVM
 
 <form method="post">
     <br />
@@ -156,12 +21,12 @@
                     </a>
                 </div>
 
-                <div class="col-md-10 offset-md-1">
+                <div class="btnContainer col-md-10 offset-md-1">
                     @foreach (var item in Model.CartList.Select((cartItem, index) => new { cartItem, index }))
                     {
                         var uniqueId = "carousel_" + item.index;
 
-                        <div class="row border-bottom pb-3">
+                        <div data-id="@item.cartItem.Id" class="row border-bottom pb-3">
                            
                             <div class="d-none d-lg-block col-lg-2 text-center py-2">
                                 @if (item.cartItem.Product.ProductImages != null && item.cartItem.Product.ProductImages.Count > 0)
@@ -215,35 +80,39 @@
                                 <h5 class="text-uppercase text-secondary">
                                     <strong>@item.cartItem.Product.Title</strong>
                                 </h5>
-                                <p><small>@item.cartItem.Product.Describtion</small></p>
+                                <p><small>@Html.Raw(item.cartItem.Product.Describtion)</small></p>
                             </div>
 
-                           
-                            <div class="col-12 col-lg-5 text-center row">
+
+                            <div data-price="@item.cartItem.Price" class="col-12 col-lg-5 text-center row">
                                 <div class="col-3 text-md-right pt-2 pt-md-4">
-                                    <h6 class="fw-semibold">
+                                    <h6 class="priceValue fw-semibold">
                                         @item.cartItem.Price.ToString("c")
-                                        <span class="text-muted">&nbsp;x&nbsp;</span>@item.cartItem.Count
+                                        <span class="text-muted">&nbsp;x&nbsp;</span>
+                                        <span class="item-count" data-id="@item.cartItem.Id">
+                                            @item.cartItem.Count
+                                        </span>
+                                       
                                     </h6>
 
                                 </div>
 
-                                <div class="col-6 col-sm-4 col-lg-6 pt-2">
+                                <div class=" col-6 col-sm-4 col-lg-6 pt-2">
                                     <div class="w-75 btn-group" role="group">
-                                        <a asp-action="Plus" asp-controller="Cart" asp-fragment="@item.cartItem.Id" asp-route-cartId="@item.cartItem.Id"
-                                           class="btn btn-outline-primary bg-gradient py-2">
+                                        <a  data-id="@item.cartItem.Id" asp-action="Plus" asp-controller="Cart" asp-fragment="@item.cartItem.Id" asp-route-cartId="@item.cartItem.Id"
+                                           class="plus btn btn-outline-primary bg-gradient py-2">
                                             <i class="bi bi-plus-square"></i>
                                         </a>&nbsp;
-                                        <a asp-action="Minus" asp-controller="Cart" asp-fragment="@item.cartItem.Id" asp-route-cartId="@item.cartItem.Id"
-                                           class="btn btn-outline-primary bg-gradient py-2">
+                                        <a  data-id="@item.cartItem.Id" asp-action="Minus" asp-controller="Cart" asp-fragment="@item.cartItem.Id" asp-route-cartId="@item.cartItem.Id"
+                                           class="minus btn btn-outline-primary bg-gradient py-2">
                                             <i class="bi bi-dash-square"></i>
                                         </a>
                                     </div>
                                 </div>
 
                                 <div class="col-3 col-sm-4 col-lg-2 offset-lg-1 text-right pt-2">
-                                    <a asp-action="Delete" asp-controller="Cart" asp-route-cartId="@item.cartItem.Id" 
-                                       class="btn btn-danger bg-gradient py-2">
+                                    <a data-id="@item.cartItem.Id" asp-action="Delete" asp-controller="Cart" asp-route-cartId="@item.cartItem.Id" 
+                                       class="trash btn btn-danger bg-gradient py-2">
                                         <i class="bi bi-trash-fill"></i>
                                     </a>
                                 </div>
@@ -260,7 +129,7 @@
                         <ul class="list-group mb-4">
                             <li class="d-flex justify-content-between align-items-center">
                                 <h5 class="text-dark fw-semibold text-uppercase">Total (USD)</h5>
-                                <h4 class="text-dark fw-bolder">@Model.OrderTotal.ToString("c")</h4>
+                                <h4 id="amount" data-total-amount="@Model.OrderTotal" class="text-dark fw-bolder">@Model.OrderTotal.ToString("c")</h4>
                             </li>
                         </ul>
                     </div>
@@ -269,7 +138,7 @@
                 <div class="row">
                     @if (Model.CartList.Count() > 0)
                     {
-                        <div class="col-md-2 offset-md-5">
+                        <div id="summary" class="col-md-2 offset-md-5">
                             <a asp-action="Summary" class="btn btn-primary border-0 bg-gradient w-100 py-2">
                                 Summary
                             </a>
@@ -281,3 +150,124 @@
     </div>
 </form>
 
+@section Scripts{
+    <script>
+        const btnContainer=document.querySelector('.btnContainer');
+        const total=document.querySelector('#amount');
+        const summary=document.querySelector('#summary');
+       
+        btnContainer.addEventListener('click',function(e){
+         let price= e.target.closest('.text-center');
+         let priceValue=price.querySelector('.priceValue');
+             e.preventDefault();
+            if(e.target.closest('.plus')){
+               let id = e.target.closest('.plus').dataset.id;
+                 $.ajax({
+                url: "/Customer/Cart/Plus",
+                type: "GET",
+                 headers: {
+            "RequestVerificationToken":
+                $('input[name="__RequestVerificationToken"]').val()
+        },
+                data: {
+                    cartId:id,
+                    oldPrice:e.target.closest('.text-center').dataset.price,
+                   oldTotalPrice:Number(total.dataset.totalAmount)
+                },
+                success: function (res) {
+                    if(res.status ==true){
+                    const countEl = document.querySelector(
+                `.item-count[data-id="${id}"]`);
+
+                  countEl.textContent = Number(countEl.textContent) + 1;
+                  total.dataset.totalAmount=res.totalPrice;
+                  total.textContent=`${res.totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}  XDR`
+                   priceValue.childNodes[0].textContent=`${res.newPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} XDR`
+                   e.target.closest('.text-center').dataset.price=res.newPrice;
+                   
+                  
+                   }
+                   else{
+                       toastr.error('somthing went wrong');
+                   }
+                },
+                error: function () {
+                   alert(response.message);
+                }
+            });
+            }
+
+            if(e.target.closest('.minus')){
+                 let id = e.target.closest('.minus').dataset.id;
+                 $.ajax({
+                url: "/Customer/Cart/Minus",
+                type: "GET",
+                 headers: {
+            "RequestVerificationToken":
+                $('input[name="__RequestVerificationToken"]').val()
+        },
+                data: {
+                    cartId:id,
+                    oldPrice:e.target.closest('.text-center').dataset.price,
+                   oldTotalPrice:Number(total.dataset.totalAmount)
+                },
+                success: function (res) {
+                    if(res.status ==true){
+                    const countEl = document.querySelector(
+                `.item-count[data-id="${id}"]`);
+
+                  countEl.textContent = Number(countEl.textContent) - 1;
+                  total.dataset.totalAmount=res.totalPrice;
+                  total.textContent=`${res.totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}  XDR`
+                   priceValue.childNodes[0].textContent=`${res.newPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} XDR`
+                   e.target.closest('.text-center').dataset.price=res.newPrice;
+                   if(Number(countEl.textContent)===0){
+                        const removeId=e.target.closest('.minus').dataset.id;
+                        const container=e.target.closest(`.border-bottom[data-id="${removeId}"]`);
+                        container.remove();
+                   }
+                    if(btnContainer.children.length===0)
+                   summary.remove();
+                   }
+                   else{
+                       toastr.error('somthing went wrong');
+                   }
+                },
+                error: function () {
+                   alert(response.message);
+                }
+            });
+            }
+
+            if(e.target.closest('.trash')){
+            const removeId=e.target.closest('.trash').dataset.id;
+            const container=e.target.closest(`.border-bottom[data-id="${removeId}"]`);
+              $.ajax({
+                url: "/Customer/Cart/Delete",
+                type: "GET",
+                 headers: {
+            "RequestVerificationToken":
+                $('input[name="__RequestVerificationToken"]').val()
+        },
+                data: {
+                    cartId:removeId,
+                },
+                success: function (res) {
+                   container.remove();
+                   let newTotal=Number(total.dataset.totalAmount)-Number(res.removedAmount);
+                    total.dataset.totalAmount=newTotal;
+                   total.textContent=`${newTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} XDR`;
+                   if(btnContainer.children.length===0)
+                   summary.remove();
+                },
+                error: function () {
+                   alert(response.message);
+                }
+            });
+
+            }
+        });
+
+        
+    </script>
+}

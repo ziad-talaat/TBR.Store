@@ -10,6 +10,7 @@ using TBL.Core.ViewModel;
 using Stripe.Checkout;
 using Microsoft.CodeAnalysis.CSharp;
 using static System.Net.WebRequestMethods;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace TBR.Store.Areas.Customer.Controllers
 {
@@ -50,43 +51,73 @@ namespace TBR.Store.Areas.Customer.Controllers
             }
              return View(cartVM);
         }
-
         [HttpGet]
-        public async Task<IActionResult> Plus(int cartId)
+        public async Task<IActionResult> Plus(int cartId,double oldPrice,decimal oldTotalPrice)
         {
-            ShoppingCart? cart = await _unitOfWork.ShoppingCart.GetSpecific(x => x.Id == cartId, true);
-            if (cart != null)
-            {
+            ShoppingCart? cart = await _unitOfWork.ShoppingCart
+                 .GetSpecific(x => x.Id == cartId, true, new[] { nameof(ShoppingCart.Product) });
+            if (cart == null)
+                return Json(false);
                 cart.Count++;
                 await _unitOfWork.CompleteAsync();
-            }
-            return RedirectToAction("Index");
-        }
+            decimal newTotalPrice=0;
+            double price= GetPriceBasedOnQuantity(cart);
 
+            if (oldPrice!=price)
+            {
+                oldTotalPrice -=(decimal) ((cart.Count - 1) * oldPrice);
+                newTotalPrice = oldTotalPrice + (decimal)(price * cart.Count);
+            }
+            else{
+
+               newTotalPrice = (decimal)price + oldTotalPrice;
+            }
+
+            return Json(new {status=true,totalPrice=newTotalPrice,newPrice = price });
+        }
         [HttpGet]
-        public async Task<IActionResult> Minus(int cartId)
+        public async Task<IActionResult> Minus(int cartId, double oldPrice, decimal oldTotalPrice)
         {
-            ShoppingCart? cart = await _unitOfWork.ShoppingCart.GetSpecific(x => x.Id == cartId, true);
+            ShoppingCart? cart = await _unitOfWork.ShoppingCart
+                .GetSpecific(x => x.Id == cartId, true, new[] { nameof(ShoppingCart.Product) });
+            if (cart == null)
+                return Json(false);
+
             if (cart.Count == 1)
                 _unitOfWork.ShoppingCart.Remove(cart);
-            if (cart != null)
-            {
+           
                 cart.Count--;
                 await _unitOfWork.CompleteAsync();
+
+            decimal newTotalPrice = 0;
+            double price = GetPriceBasedOnQuantity(cart);
+
+            if (oldPrice != price)
+            {
+                oldTotalPrice -= (decimal)((cart.Count + 1) * oldPrice);
+                newTotalPrice = oldTotalPrice + (decimal)(price * cart.Count);
             }
-            return RedirectToAction("Index");
+            else
+            {
+
+                newTotalPrice = oldTotalPrice - (decimal)price;
+            }
+
+            return Json(new { status = true, totalPrice = newTotalPrice, newPrice = price });
         }
          [HttpGet]
         public async Task<IActionResult> Delete(int cartId)
         {
-            ShoppingCart? cart = await _unitOfWork.ShoppingCart.GetSpecific(x => x.Id == cartId, false);
-            
-            if (cart != null)
-            {
+            ShoppingCart? cart = await _unitOfWork.ShoppingCart.GetSpecific(x => x.Id == cartId, false, new[] {nameof(ShoppingCart.Product) });
+
+            if (cart is null)
+                return Json(new {status=false});
                 _unitOfWork.ShoppingCart.Remove(cart);
                 await _unitOfWork.CompleteAsync();
-            }
-            return RedirectToAction("Index");
+            
+            double price = GetPriceBasedOnQuantity(cart);
+            decimal takedOffPrice = (decimal)price * cart.Count;
+            return Json(new {status=true, removedAmount=takedOffPrice});
         }
 
         public async Task<IActionResult> Summary()
