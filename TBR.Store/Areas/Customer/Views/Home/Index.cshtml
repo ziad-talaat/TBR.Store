@@ -13,13 +13,10 @@
 
 <div class="row">
     <div class="col-md-2">
-        <form asp-action="Index" method="get" class="border p-2 rounded bg-light">
-            <h6 class="mb-2">Sort & Filter</h6>
-
+        <form id="sortForm" asp-action="Index" method="get" class="border p-2 rounded bg-light">
             <div class="form-group mb-2">
-                <label class="form-label small">Sort By</label>
                 <select class="form-select form-select-sm" name="sortBy">
-                    <option value="">-- Select --</option>
+                    <option value="">-- SortBy --</option>
                     <option value="Price" selected="@(currentSortBy == "Price")">Price</option>
                     <option value="TopRated" selected="@(currentSortBy == "TopRated")">Top Rated</option> 
                 </select>
@@ -49,8 +46,8 @@
                 }
             </div>
 
-            <input type="hidden" name="searchBy" value="@currentSearchBy" />
-            <input type="hidden" name="searchValue" value="@currentSearchValue" />
+            <input id="searchByInput" type="hidden" name="searchBy" value="@currentSearchBy" />
+            <input  id="searchValueInput" type="hidden" name="searchValue" value="@currentSearchValue" />
 
             <button type="submit" class="btn btn-sm btn-primary w-100">Apply</button>
         </form>
@@ -161,3 +158,40 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+      
+   //      const form=document.querySelector('#sortForm');
+   //      const searchBy=document.querySelector('#searchByInput');
+   //      const searchValue=document.querySelector('#searchValueInput');
+   //      form.addEventListener('submit',(e)=>{
+   //          e.preventDefault();
+			// searchBy.value=document.querySelector('input[name="searchBy"]').value;
+			// searchValue.value=document.querySelector('input[name="searchValue"]').value;
+
+			// form.submit();
+
+   //      });
+
+           const sortForm = document.querySelector('#sortForm');
+
+        const searchForm = document.querySelector('form[action*="Index"]:not(#sortForm)');
+
+        const hiddenSearchBy = document.querySelector('#searchByInput');
+        const hiddenSearchValue = document.querySelector('#searchValueInput');
+
+        sortForm.addEventListener('submit', e => {
+            e.preventDefault();
+
+            const searchBySelect = searchForm.querySelector('select[name="searchBy"]');
+            const searchValueInput = searchForm.querySelector('input[name="searchValue"]');
+
+            hiddenSearchBy.value = searchBySelect.value;
+            hiddenSearchValue.value = searchValueInput.value;
+
+            sortForm.submit(); // normal submit after sync
+        });
+
+    </script>
+}

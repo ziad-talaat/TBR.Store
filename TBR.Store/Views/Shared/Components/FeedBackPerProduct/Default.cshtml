@@ -10,7 +10,7 @@
     <div class="row">
         <div class="col-md-8">
             <div class="page-header">
-                <h1 class="pull-left">@ViewBag.commentCount comments  </h1>
+                <h1 class="pull-left"><span id="commentCount">@ViewBag.commentCount</span> comments  </h1>
             </div>
             <div class="comments-list">
     @foreach(var item in Model)
@@ -63,7 +63,7 @@
                e.preventDefault();
                       const commentId = deleteBtn.dataset.commentId;
     
-                    
+                    debugger;
                if(!commentId) return;
 
                if(confirm('Are you sure you want to delete your comment?')){
@@ -73,14 +73,29 @@
                              data: { commentID: commentId,__RequestVerificationToken:
          $('input[name="__RequestVerificationToken"]').val() },
                        success: function(res){
-                           // if(res===true)
-                           // {
-                           //    const media= deleteBtn.closest('.media');
-                           //    if(media){
-                           //    media.remove();
-                           //    }
-                           // }
-                           location.reload();
+                           if(res===true)
+                           {
+                               const commentCount=document.querySelector('#commentCount');
+                              const media= deleteBtn.closest('.media');
+                              if(media){
+                                   const event = new CustomEvent('itemDeleted', {
+                                 detail: {
+                                     html: res,
+                                     message: 'Success!'
+                                 },
+                                 bubbles: true,
+                                 cancelable: true
+                             });
+                             deleteBtn.dispatchEvent(event);
+                              media.remove();
+                              }
+                         commentCount.textContent -= 1;
+
+                             
+                        
+                          
+                            
+                           }
                        },
                        error: function(xhr, status, error){
                            console.error('Error:', error);
@@ -125,6 +140,7 @@
                          edited.innerHTML=`<small>${res.newDate}(Edited) </small>`
                          container.textContent=res.newContent;
                          send.classList.add('hidden');
+                           container.contentEditable = false;
                        },
                        error: function(error){
                            console.error('Error:', error);
@@ -132,14 +148,3 @@
                    });
                   });
     </script>
-
-
-
-
-
-
-            
-
-
-
-

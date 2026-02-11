@@ -266,4 +266,11 @@
 
         });
     });
+
+
+    document.addEventListener('itemDeleted',()=>{
+        debugger
+        const myDiv=document.querySelector('#feedBackContainer');
+        document.querySelector('.card').insertAdjacentElement("beforeend",myDiv);
+    });
 </script>

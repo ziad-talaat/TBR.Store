@@ -49,21 +49,13 @@ namespace TBR.Store.Areas.Customer.Controllers
               new SelectListItem { Value = nameof(Product.Price), Text = "Price",Selected = (searchBy == nameof(Product.Price)) },
             };
 
-
-
-
             var categoriesNames =await _unitOfWork.Category.GetCategoriesName();
-
             ViewBag.FilterCategories = categoriesNames.Select(x => new SelectListItem
             {
                 Value = x,
                 Text = x,
                 Selected = (categoryValue == x)
             }).ToList();
-
-            
-            
-
             
             return View(pageDetails);
         }
