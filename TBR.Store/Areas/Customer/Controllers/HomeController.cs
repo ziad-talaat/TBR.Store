@@ -214,6 +214,12 @@ namespace TBR.Store.Areas.Customer.Controllers
             }
         }
 
+        [HttpGet("GetFeedBack")]
+        public  IActionResult GetFeedBack(int productId)
+        {
+            return ViewComponent("FeedBackPerProduct", new { productId });
+        }
+
 
         [HttpPost]
         [Authorize]

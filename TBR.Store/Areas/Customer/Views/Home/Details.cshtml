@@ -152,9 +152,9 @@
         </div>
        
        
-
+        <div id="commentsContainer">
             @await Component.InvokeAsync("FeedBackPerProduct", new { productId = Model.ProductId })
-
+        </div>
 
 
         @if (ViewBag.CanComment)
@@ -241,7 +241,8 @@
             });
         }
 
-        $("#sendFeedBack").click(function(){
+        $(document).on("click", "#sendFeedBack", function () {
+            debugger;
             const feedback=$("#feedbackInput").val();
              $.ajax({
                 url: "/Customer/Home/AddFeedBack",
@@ -256,11 +257,22 @@
                 },
 
                 success: function (res) {
-                    $("#feedBackContainer").addClass("fade-out-fast")
-                    location.reload();
+                    if(res.status===true){
+
+                    // $("#feedBackContainer").addClass("fade-out-fast")
+                    // location.reload();
+
+                        $("#commentsContainer").load('@Url.Action("GetFeedBack", "Home", new { area = "Customer", productId = Model.ProductId })');
+                         
+
+                    }
+                    else{
+                  toastr.error(`${res.message}`);
+
+                    }
                 },
                 error: function () {
-                   alert(response.message);
+                  toastr.error("Something went wrong");
                 }
             });
 
@@ -270,7 +282,15 @@
 
     document.addEventListener('itemDeleted',()=>{
         debugger
-        const myDiv=document.querySelector('#feedBackContainer');
-        document.querySelector('.card').insertAdjacentElement("beforeend",myDiv);
+        
+        document.querySelector('.card').insertAdjacentHTML("beforeend",`<div id="feedBackContainer" class="col-12 col-md-6 mt-3">
+                <label for="feedbackInput" class="form-label ms-2 fw-bold">Leave Your Feedback</label>
+                <div class="input-group">
+                    <input type="text" id="feedbackInput" class="form-control" placeholder="Write a comment..." aria-label="Feedback">
+                    <button class="btn btn-primary" type="button" id="sendFeedBack">
+                        <i class="bi bi-send"></i> Send
+                    </button>
+                </div>
+            </div>`);
     });
 </script>

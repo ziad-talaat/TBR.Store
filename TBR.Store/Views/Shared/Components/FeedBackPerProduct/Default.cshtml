@@ -52,8 +52,14 @@
 </div>
     <script>
     const btn=document.querySelector('.verticall-dot');
-    btn.addEventListener('click',function(){
+    const divParent=document.querySelector('.media');
+    divParent.addEventListener('click',function(e){
+        debugger;
+        const clicked=e.target.closest('.verticall-dot');
         const operations=document.querySelector('.comment-operations');
+        
+        if(clicked!==btn&& operations.classList.contains('hidden'))
+        return;
         operations.classList.toggle('hidden');
 	});
       
@@ -66,7 +72,17 @@
                     debugger;
                if(!commentId) return;
 
-               if(confirm('Are you sure you want to delete your comment?')){
+               Swal.fire({
+        title: 'Are you sure?',
+        text: 'You will not be able to recover this comment!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+
+        if (result.isConfirmed) {
                    $.ajax({
                        url: '/Customer/Home/DeleteComment',
                        type: 'POST',
@@ -78,30 +94,21 @@
                                const commentCount=document.querySelector('#commentCount');
                               const media= deleteBtn.closest('.media');
                               if(media){
-                                   const event = new CustomEvent('itemDeleted', {
-                                 detail: {
-                                     html: res,
-                                     message: 'Success!'
-                                 },
-                                 bubbles: true,
-                                 cancelable: true
-                             });
-                             deleteBtn.dispatchEvent(event);
+                                 
+                            document.dispatchEvent(new CustomEvent('itemDeleted'));
                               media.remove();
                               }
                          commentCount.textContent -= 1;
 
-                             
-                        
-                          
-                            
                            }
                        },
-                       error: function(xhr, status, error){
-                           console.error('Error:', error);
+                       error: function(){
+                            toastr.error("Something went wrong");
                        }
                    });
                }
+               });
+
            });
        }
 
