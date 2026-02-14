@@ -33,29 +33,38 @@ namespace TBR.Store.Areas.Customer.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string ?searchBy,string?searchValue,string ?sortBy,string ?categoryValue ,bool isAssending=true,int pageNumber=1)
         {
-            
 
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             Pagination<Product> pageDetails=  _unitOfWork.Products.GetAllSortedAndFilterdInPage(searchBy,searchValue,sortBy, categoryValue, isAssending, pageNumber, new[] {nameof(Product.ProductImages)});
-            ViewBag.CurrentSearchBy = searchBy;
-            ViewBag.CurrentSearchValue = searchValue;
-            ViewBag.CurrentSortBy = sortBy;
-            ViewBag.CurrentOrder = isAssending;
-            ViewBag.CurrentCategory = categoryValue;
+            if (isAjax)
+            {
+                return PartialView("_filterdProducts", pageDetails);
+            }
+
+            ////ViewBag.CurrentSearchBy = searchBy;
+            ////ViewBag.CurrentSearchValue = searchValue;
+            ////ViewBag.CurrentSortBy = sortBy;
+            ////ViewBag.CurrentOrder = isAssending;
+            ////ViewBag.CurrentCategory = categoryValue;
+            
             ViewBag.SearchItems = new List<SelectListItem>
             {
-              new SelectListItem { Value = nameof(Product.Title), Text = "Title" , Selected = (searchBy == nameof(Product.Title))},
-              new SelectListItem { Value = nameof(Product.ISBN), Text = "ISBN" ,Selected = (searchBy == nameof(Product.ISBN))},
-              new SelectListItem { Value = nameof(Product.Author), Text = "Author",Selected = (searchBy == nameof(Product.Author)) },
-              new SelectListItem { Value = nameof(Product.Price), Text = "Price",Selected = (searchBy == nameof(Product.Price)) },
-            };
+                new SelectListItem { Value = nameof(Product.Title), Text = "Title", Selected = (searchBy == nameof(Product.Title)) },
+              new SelectListItem { Value = nameof(Product.ISBN), Text = "ISBN", Selected = (searchBy == nameof(Product.ISBN)) },
+              new SelectListItem { Value = nameof(Product.Author), Text = "Author", Selected = (searchBy == nameof(Product.Author)) },
+              new SelectListItem { Value = nameof(Product.Price), Text = "Price", Selected = (searchBy == nameof(Product.Price)) },
+            }
+            ;
 
-            var categoriesNames =await _unitOfWork.Category.GetCategoriesName();
+            var categoriesNames = await _unitOfWork.Category.GetCategoriesName();
             ViewBag.FilterCategories = categoriesNames.Select(x => new SelectListItem
             {
                 Value = x,
                 Text = x,
                 Selected = (categoryValue == x)
             }).ToList();
+
+          
             
             return View(pageDetails);
         }

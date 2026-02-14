@@ -15,14 +15,14 @@
     <div class="col-md-2">
         <form id="sortForm" asp-action="Index" method="get" class="border p-2 rounded bg-light">
             <div class="form-group mb-2">
-                <select class="form-select form-select-sm" name="sortBy">
+                <select  class="form-select form-select-sm" name="sortBy">
                     <option value="">-- SortBy --</option>
                     <option value="Price" selected="@(currentSortBy == "Price")">Price</option>
                     <option value="TopRated" selected="@(currentSortBy == "TopRated")">Top Rated</option> 
                 </select>
             </div>
 
-            <div class="form-group mb-2">
+            <div id="radioBox" class="form-group mb-2">
                 <label class="form-label small">Order</label><br />
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="isAssending" value="true" @(currentOrder ? "checked" : "") />
@@ -34,27 +34,27 @@
                 </div>
             </div>
 
-            <div class="form-group mb-2">
+            <div class="categoriesContainer form-group mb-2">
                 <label class="form-label small">Category</label>
                 @foreach (var category in categories)
                 {
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="value" value="@category.Value"
+                        <input class="form-check-input" type="radio" name="categoryValue" value="@category.Value"
                         @(currentCategory == category.Value ? "checked" : "") />
                         <label class="form-check-label small">@category.Text</label>
                     </div>
                 }
             </div>
 
-            <input id="searchByInput" type="hidden" name="searchBy" value="@currentSearchBy" />
+         @*   <input id="searchByInput" type="hidden" name="searchBy" value="@currentSearchBy" />
             <input  id="searchValueInput" type="hidden" name="searchValue" value="@currentSearchValue" />
-
-            <button type="submit" class="btn btn-sm btn-primary w-100">Apply</button>
+            *@
+            @* <button type="submit" class="btn btn-sm btn-primary w-100">Apply</button>*@
         </form>
     </div>
 
     <div class="col-md-10">
-        <form asp-action="Index" method="get" class="form-control mb-3 p-3">
+        <form id="searchForm" asp-action="Index" method="get" class="form-control mb-3 p-3">
             <div class="row g-2">
                 <div class="col-md-4">
                     <select name="searchBy" asp-items="ViewBag.SearchItems" class="form-select form-select-sm">
@@ -64,17 +64,18 @@
                 <div class="col-md-5">
                     <input type="search" name="searchValue" class="form-control form-control-sm" placeholder="Search..." value="@currentSearchValue" />
                 </div>
-                <div class="col-md-3">
+                @*<div class="col-md-3">
                     <button type="submit" class="btn btn-sm btn-outline-primary w-100">Search</button>
                 </div>
+                *@
             </div>
 
-            <input type="hidden" name="sortBy" value="@currentSortBy" />
+            @*<input type="hidden" name="sortBy" value="@currentSortBy" />
             <input type="hidden" name="isAssending" value="@currentOrder" />
-            <input type="hidden" name="value" value="@currentCategory" />
+            <input type="hidden" name="value" value="@currentCategory" />*@
         </form>
 
-        <div class="row pb-3">
+        <div id="productContainer" class="row pb-3">
             @foreach (var product in Model.Items)
             {
                 <div class="col-lg-3 col-md-4 col-sm-6 d-flex mb-4">
@@ -161,37 +162,75 @@
 
 @section Scripts {
     <script>
+        const categoriesContainer = document.querySelector('.categoriesContainer');
+          const sortByList = document.querySelector('select[name="sortBy"]');
+            const radio = document.querySelector('#radioBox');
+           // const radio = document.querySelector('select[name="isAssending"]');
+          console.log(sortByList)
+        const sortForm = document.querySelector('#sortForm');
+        const searchForm = document.querySelector('#searchForm');
+
       
-   //      const form=document.querySelector('#sortForm');
-   //      const searchBy=document.querySelector('#searchByInput');
-   //      const searchValue=document.querySelector('#searchValueInput');
-   //      form.addEventListener('submit',(e)=>{
-   //          e.preventDefault();
-			// searchBy.value=document.querySelector('input[name="searchBy"]').value;
-			// searchValue.value=document.querySelector('input[name="searchValue"]').value;
+       const collectData= function(){
+         const sortFormData=new FormData(sortForm);
+          const searchFormData=new FormData(searchForm);
 
-			// form.submit();
+          return [...sortFormData.entries() ,...searchFormData.entries()];
+        }
+         const callFiltaration=function(){
+              const formsData= collectData();
+               const queryString = new URLSearchParams(formsData).toString();
 
-   //      });
+                $.ajax({
+                    url: "/Customer/Home/Index",
+                   type: "GET",
+                    data: queryString,
+                   success: function (res) {
+                       $('#productContainer').html(res);
+                   },
+                   error: function () {
+                     toastr.error("Something went wrong");
+                   }
+               });
+           }
 
-           const sortForm = document.querySelector('#sortForm');
 
-        const searchForm = document.querySelector('form[action*="Index"]:not(#sortForm)');
+         // const callFiltaration=function(e){
+         //     const clickedInput= e.target.closest('input');
+         //     if(!clickedInput)return;
+         //     const formsData= collectData();
+           
+         //      const queryString = new URLSearchParams(formsData).toString();
 
-        const hiddenSearchBy = document.querySelector('#searchByInput');
-        const hiddenSearchValue = document.querySelector('#searchValueInput');
+         //       $.ajax({
+         //           url: "/Customer/Home/Index",
+         //          type: "GET",
+         //           data: queryString,
+         //          success: function (res) {
+         //              $('#productContainer').html(res);
+         //          },
+         //          error: function () {
+         //            toastr.error("Something went wrong");
+         //          }
+         //      });
+         //  }
 
-        sortForm.addEventListener('submit', e => {
-            e.preventDefault();
+          categoriesContainer.addEventListener('click',(e)=>{
+               const clickedInput= e.target.closest('input');
+              if(!clickedInput)return;
+              callFiltaration();
+          })
+             sortByList.addEventListener('change',(e)=>{
+                  callFiltaration();
+             })
 
-            const searchBySelect = searchForm.querySelector('select[name="searchBy"]');
-            const searchValueInput = searchForm.querySelector('input[name="searchValue"]');
-
-            hiddenSearchBy.value = searchBySelect.value;
-            hiddenSearchValue.value = searchValueInput.value;
-
-            sortForm.submit(); // normal submit after sync
-        });
+             debugger
+              radio.addEventListener('change',(e)=>{
+                   const input=e.target.closest('input[name="isAssending"]')
+                   if(!input)return;
+                   
+                    callFiltaration();
+              });
 
     </script>
 }

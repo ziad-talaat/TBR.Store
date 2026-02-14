@@ -31,7 +31,17 @@ namespace TBR.Store
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("ConStr"));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("ConStr")
+        //            ,
+        //sqlOptions =>
+        //{
+        //    sqlOptions.EnableRetryOnFailure(
+        //        maxRetryCount: 15,
+        //        maxRetryDelay: TimeSpan.FromSeconds(30),
+        //        errorNumbersToAdd: null
+        //    );
+        //}
+        );
             });
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();

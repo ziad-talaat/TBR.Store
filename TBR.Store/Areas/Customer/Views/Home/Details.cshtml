@@ -259,12 +259,10 @@
                 success: function (res) {
                     if(res.status===true){
 
-                    // $("#feedBackContainer").addClass("fade-out-fast")
-                    // location.reload();
+                   
 
+                         $("#feedBackContainer").addClass("fade-out-fast")
                         $("#commentsContainer").load('@Url.Action("GetFeedBack", "Home", new { area = "Customer", productId = Model.ProductId })');
-                         
-
                     }
                     else{
                   toastr.error(`${res.message}`);
