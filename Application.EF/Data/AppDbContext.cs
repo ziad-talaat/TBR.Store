@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using System.Buffers;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TBL.Core.Models;
 
@@ -18,6 +19,7 @@ namespace Application.EF.Data
         public DbSet<Product> Product { get; set; }
         public DbSet<ProductImages> ProductImages { get; set; }
         public DbSet<Company> Company { get; set; }
+        public DbSet<SearchedItems> SearchedItems { get; set; }
         public DbSet<UserProduct_Voting> UserProduct_Voting { get; set; }
         public DbSet<ShoppingCart> ShoppingCart { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

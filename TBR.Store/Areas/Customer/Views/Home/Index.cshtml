@@ -55,24 +55,19 @@
 
     <div class="col-md-10">
         <form id="searchForm" asp-action="Index" method="get" class="form-control mb-3 p-3">
-            <div class="row g-2">
-                <div class="col-md-4">
-                    <select name="searchBy" asp-items="ViewBag.SearchItems" class="form-select form-select-sm">
-                        <option value="">-- Select Property --</option>
-                    </select>
-                </div>
-                <div class="col-md-5">
+            <div style="position:relative" class="row flex-column g-2">
+                <div class="col-md-5 offset-md-3">
                     <input type="search" name="searchValue" class="form-control form-control-sm" placeholder="Search..." value="@currentSearchValue" />
                 </div>
-                @*<div class="col-md-3">
-                    <button type="submit" class="btn btn-sm btn-outline-primary w-100">Search</button>
+                <div class="col-md-5 offset-md-3" style="position:absolute;top: 100%;  
+        left: 0;
+        right: 0;z-index:2;border: 1px solid #dee2e6; border-radius: 8px ;height:fit-content;background-color:#f3f4f6">
+   
+                    <ul class="autocomplete-list">
+                        
+                    </ul>
                 </div>
-                *@
             </div>
-
-            @*<input type="hidden" name="sortBy" value="@currentSortBy" />
-            <input type="hidden" name="isAssending" value="@currentOrder" />
-            <input type="hidden" name="value" value="@currentCategory" />*@
         </form>
 
         <div id="productContainer" class="row pb-3">
@@ -164,6 +159,7 @@
     <script>
         const categoriesContainer = document.querySelector('.categoriesContainer');
           const sortByList = document.querySelector('select[name="sortBy"]');
+           const searchInput = document.querySelector('input[name="searchValue"]');
             const radio = document.querySelector('#radioBox');
            // const radio = document.querySelector('select[name="isAssending"]');
           console.log(sortByList)
@@ -195,26 +191,6 @@
            }
 
 
-         // const callFiltaration=function(e){
-         //     const clickedInput= e.target.closest('input');
-         //     if(!clickedInput)return;
-         //     const formsData= collectData();
-           
-         //      const queryString = new URLSearchParams(formsData).toString();
-
-         //       $.ajax({
-         //           url: "/Customer/Home/Index",
-         //          type: "GET",
-         //           data: queryString,
-         //          success: function (res) {
-         //              $('#productContainer').html(res);
-         //          },
-         //          error: function () {
-         //            toastr.error("Something went wrong");
-         //          }
-         //      });
-         //  }
-
           categoriesContainer.addEventListener('click',(e)=>{
                const clickedInput= e.target.closest('input');
               if(!clickedInput)return;
@@ -224,13 +200,31 @@
                   callFiltaration();
              })
 
-             debugger
+             
               radio.addEventListener('change',(e)=>{
                    const input=e.target.closest('input[name="isAssending"]')
                    if(!input)return;
                    
                     callFiltaration();
               });
+
+            
+               searchInput.addEventListener('input',(e)=>{
+                     $.ajax({
+                      url: "/Customer/Home/GetSearchBar",
+                    type: "GET",
+                     data: {
+                          value:searchInput.value,
+                     },
+                    success: function (res) {
+                          $('.autocomplete-list').html(res);
+                    },
+                    error: function () {
+                      toastr.error("Something went wrong");
+                    }
+                });
+               });
+
 
     </script>
 }

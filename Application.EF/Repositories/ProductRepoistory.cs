@@ -1,10 +1,12 @@
-﻿using Application.EF.Data;
+﻿using System.Collections.Specialized;
+using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
+using System.Reflection;
+using Application.EF.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using System.Collections.Specialized;
-using System.Linq.Expressions;
-using System.Reflection;
+using Microsoft.IdentityModel.Tokens;
 using TBL.Core.Contracts;
 using TBL.Core.Converter;
 using TBL.Core.Enums;
@@ -68,6 +70,17 @@ namespace TBL.EF.Repositories
             _context.Product.Update(obj);
         }
 
+
+        public List<SearchedItems> GetSearchValue(string value)
+        {
+            if(string.IsNullOrEmpty(value))
+                return new List<SearchedItems>();
+            return _context.SearchedItems
+                .Where(x => x.ProductValue.ToLower().StartsWith(value.ToLower()))
+                .OrderByDescending(x => x.ClickedCount)
+                .Take(5)
+                .ToList();
+        }
      
 
      public Pagination<Product> GetAllSortedAndFilterdInPage(string? filterBy,string filterValue,  string? sortBy, string? value, bool isAssending=true,int page = 1, string[]?includes=null)
@@ -133,40 +146,58 @@ namespace TBL.EF.Repositories
 
         private IQueryable<Product> BuildFilterQuery(IQueryable<Product> query, string filterBy,string filterValue)
         {
-            var parameter = Expression.Parameter(typeof(Product), "x");
-            var property = Expression.Property(parameter, filterBy);
+            //var parameter = Expression.Parameter(typeof(Product), "x");
+            //var property = Expression.Property(parameter, filterBy);
 
-            var propertyType = property.Type;
-            var targetType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
+            //var propertyType = property.Type;
+            //var targetType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
 
-            object? convertedValue;
-            try
+            //object? convertedValue;
+            //try
+            //{
+            //    convertedValue = Convert.ChangeType(filterValue, targetType);
+            //}
+            //catch
+            //{
+            //    return query;
+            //}
+
+            //Expression predicate;
+
+            //if (property.Type == typeof(string))
+            //{
+            //    var notNull = Expression.NotEqual(property, Expression.Constant(null, typeof(string)));
+            //    var method = typeof(string).GetMethod("Contains", new[] { typeof(string) })!;
+            //    var contains = Expression.Call(property, method, Expression.Constant(filterValue));
+            //    predicate = Expression.AndAlso(notNull, contains);
+            //}
+            //else
+            //{
+            //    var constant = Expression.Constant(convertedValue, property.Type);
+            //    predicate = Expression.Equal(property, constant);
+            //}
+
+            //var lambda = Expression.Lambda<Func<Product, bool>>(predicate, parameter);
+            //return query.Where(lambda);
+
+
+            if (!string.IsNullOrEmpty(filterValue))
             {
-                convertedValue = Convert.ChangeType(filterValue, targetType);
+                //public string Title { get; set; }
+                //public string Describtion { get; set; }
+                //public string ISBN { get; set; }
+                //public string Author { get; set; }
+                //public double DisplayPrice { get; set; }
+                string searchedValue = filterValue.ToLower().Trim();
+                query = query.Where(
+                     x => x.Title != null && x.Title.ToLower().Contains(searchedValue)||
+                          x.Describtion != null && x.Describtion.ToLower().Contains(searchedValue)||
+                          x.Author != null && x.Author.ToLower().Contains(searchedValue)||
+                          x.ISBN != null && x.ISBN.ToLower().Contains(searchedValue)||
+                          x.DisplayPrice.ToString()==searchedValue
+                    );
             }
-            catch
-            {
-                return query;
-            }
-
-            Expression predicate;
-
-            if (property.Type == typeof(string))
-            {
-                var notNull = Expression.NotEqual(property, Expression.Constant(null, typeof(string)));
-                var method = typeof(string).GetMethod("Contains", new[] { typeof(string) })!;
-                var contains = Expression.Call(property, method, Expression.Constant(filterValue));
-                predicate = Expression.AndAlso(notNull, contains);
-            }
-            else
-            {
-                var constant = Expression.Constant(convertedValue, property.Type);
-                predicate = Expression.Equal(property, constant);
-            }
-
-            var lambda = Expression.Lambda<Func<Product, bool>>(predicate, parameter);
-            return query.Where(lambda);
-
+            return query;
         }
 
         private IQueryable<Product>ApplyFilterByCategory(IQueryable<Product> query, string value)

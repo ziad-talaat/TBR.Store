@@ -8,6 +8,7 @@ namespace TBL.Core.Contracts
     public interface IProductRepository:IBaseRepository<Product>
     {
         void Update(Product obj);
+        List<SearchedItems> GetSearchValue(string value);
         public int FeedBacksCount(int id);
         Task<IEnumerable<ProductWithCategoryNameVM>> GetProductWithCategoryName();
         Task<ProductWithCategoryNameVM> GetProductWithCategoryName(int id);

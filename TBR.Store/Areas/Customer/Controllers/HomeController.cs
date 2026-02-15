@@ -64,10 +64,16 @@ namespace TBR.Store.Areas.Customer.Controllers
                 Selected = (categoryValue == x)
             }).ToList();
 
-          
-            
             return View(pageDetails);
         }
+
+          [HttpGet]
+         public IActionResult GetSearchBar(string value)
+         {
+            var result = _unitOfWork.Products.GetSearchValue(value);
+            return PartialView("_searchBar",result);
+         }
+
 
         [HttpGet]
         [Authorize]
