@@ -455,6 +455,9 @@ namespace TBL.EF.Migrations
                         .IsRequired()
                         .HasColumnType("int");
 
+                    b.Property<int>("ClickedCount")
+                        .HasColumnType("int");
+
                     b.Property<string>("Describtion")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -506,26 +509,6 @@ namespace TBL.EF.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductImages");
-                });
-
-            modelBuilder.Entity("TBL.Core.Models.SearchedItems", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ClickedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ProductValue")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SearchedItems");
                 });
 
             modelBuilder.Entity("TBL.Core.Models.ShoppingCart", b =>

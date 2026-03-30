@@ -19,7 +19,7 @@ using Humanizer;
 namespace TBR.Store.Areas.Customer.Controllers
 {
     [Area(nameof(Areas.Customer))]
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUnitOfWork _unitOfWork;   
@@ -31,41 +31,45 @@ namespace TBR.Store.Areas.Customer.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Index(string ?searchBy,string?searchValue,string ?sortBy,string ?categoryValue ,bool isAssending=true,int pageNumber=1)
+        public async Task<IActionResult> Index(SearchAndSortDataModel data)
         {
+            ViewBag.CurrentSearchValue = data.searchValue;
+            ViewBag.CurrentSortBy = data.sortBy;
+            ViewBag.CurrentCategory = data.categoryValue;
+            ViewBag.CurrentOrder = data.isAssending;
+            ViewBag.CurrentPage = data.pageNumber;
 
             bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
-            Pagination<Product> pageDetails=  _unitOfWork.Products.GetAllSortedAndFilterdInPage(searchBy,searchValue,sortBy, categoryValue, isAssending, pageNumber, new[] {nameof(Product.ProductImages)});
+            Pagination<Product> pageDetails=  _unitOfWork.Products.GetAllSortedAndFilterdInPage(data.searchValue, data.sortBy, data.categoryValue, data.isAssending, data.pageNumber, new[] {nameof(Product.ProductImages)});
             if (isAjax)
             {
+                if (data.fromSearch is true)
+                {
+                  var product= await _unitOfWork.Products.GetSpecific(x => x.Title == data.searchValue, true);
+                   if( product is not null)
+                    {
+                        product.ClickedCount++;
+                    _unitOfWork?.CompleteAsync();
+                    }
+
+                }
+              
                 return PartialView("_filterdProducts", pageDetails);
             }
-
-            ////ViewBag.CurrentSearchBy = searchBy;
-            ////ViewBag.CurrentSearchValue = searchValue;
-            ////ViewBag.CurrentSortBy = sortBy;
-            ////ViewBag.CurrentOrder = isAssending;
-            ////ViewBag.CurrentCategory = categoryValue;
-            
-            ViewBag.SearchItems = new List<SelectListItem>
-            {
-                new SelectListItem { Value = nameof(Product.Title), Text = "Title", Selected = (searchBy == nameof(Product.Title)) },
-              new SelectListItem { Value = nameof(Product.ISBN), Text = "ISBN", Selected = (searchBy == nameof(Product.ISBN)) },
-              new SelectListItem { Value = nameof(Product.Author), Text = "Author", Selected = (searchBy == nameof(Product.Author)) },
-              new SelectListItem { Value = nameof(Product.Price), Text = "Price", Selected = (searchBy == nameof(Product.Price)) },
-            }
-            ;
 
             var categoriesNames = await _unitOfWork.Category.GetCategoriesName();
             ViewBag.FilterCategories = categoriesNames.Select(x => new SelectListItem
             {
                 Value = x,
                 Text = x,
-                Selected = (categoryValue == x)
+                Selected = (data.categoryValue == x)
             }).ToList();
+
+           
 
             return View(pageDetails);
         }
+       
 
           [HttpGet]
          public IActionResult GetSearchBar(string value)
@@ -77,7 +81,7 @@ namespace TBR.Store.Areas.Customer.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(int id, SearchAndSortDataModel data)
         {
             Product ?product = await _unitOfWork.Products.GetSpecific(x => x.Id == id, false, new[] {nameof(Product.Category),nameof(Product.ProductImages)});
             var claimIdentity = (ClaimsIdentity)User.Identity;
@@ -105,8 +109,16 @@ namespace TBR.Store.Areas.Customer.Controllers
             if(boughtProductsIds.Any(x=>x==id) && Comminted is null) {
                 ViewBag.CanComment = true;
             }
-           
-                return View(cart);
+
+            ViewBag.searchValue = data.searchValue;
+            ViewBag.sortBy = data.sortBy;
+            ViewBag.categoryValue = data.categoryValue;
+            ViewBag.isAssending = data.isAssending;
+            ViewBag.pageNumber = data.pageNumber;
+
+
+
+            return View(cart);
         }   
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -143,7 +155,7 @@ namespace TBR.Store.Areas.Customer.Controllers
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Vote(Voting voteType,int productId)
-        {
+        /**/{
             var claimIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -281,6 +293,12 @@ namespace TBR.Store.Areas.Customer.Controllers
             {
                 return Json(false);
             }
+        }
+        [HttpGet]
+        public IActionResult AboutUs()
+        {
+            
+            return View("About");
         }
     }
 }

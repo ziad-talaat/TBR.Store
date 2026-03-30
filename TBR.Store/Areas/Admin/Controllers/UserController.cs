@@ -93,8 +93,6 @@ namespace TBR.Store.Areas.Admin.Controllers
 
             return Json(new {data=users});
         }
-
-
         [HttpGet]
         public async Task<IActionResult> RoleManagment(string userId)
         {
@@ -112,8 +110,6 @@ namespace TBR.Store.Areas.Admin.Controllers
                     Value = i.Id.ToString()
                 }),
             };
-
-
             var user = await _UnitOfWork.User.GetSpecific(u => u.Id == userId);
 
             var roles = await _userManager.GetRolesAsync(user);
@@ -122,19 +118,14 @@ namespace TBR.Store.Areas.Admin.Controllers
 
             return View(RoleVM);
         }
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RoleManagment(RoleManagmentVM roleVM)
         {
-            
             string oldRole = _userManager.GetRolesAsync(await _UnitOfWork.User.GetSpecific(u => u.Id == roleVM.AppUser.Id))
                               .GetAwaiter().GetResult().FirstOrDefault(Roles.Role_Customer);
 
             ApplicationUser applicationUser = await _UnitOfWork.User.GetSpecific(u => u.Id == roleVM.AppUser.Id);
-
-
             if (!(roleVM.AppUser.Role == oldRole))
             {
                 //a role was updated
@@ -148,10 +139,8 @@ namespace TBR.Store.Areas.Admin.Controllers
                 }
                 _UnitOfWork.User.Update(applicationUser);
                await  _UnitOfWork.CompleteAsync();
-
                 _userManager.RemoveFromRoleAsync(applicationUser, oldRole).GetAwaiter().GetResult();
                 _userManager.AddToRoleAsync(applicationUser, roleVM.AppUser.Role).GetAwaiter().GetResult();
-
             }
             else
             {
@@ -162,12 +151,7 @@ namespace TBR.Store.Areas.Admin.Controllers
                     await _UnitOfWork.CompleteAsync();
                 }
             }
-
             return RedirectToAction("Index");
         }
-
-
-           
-
     }
 }

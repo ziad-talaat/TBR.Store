@@ -71,19 +71,19 @@ namespace TBL.EF.Repositories
         }
 
 
-        public List<SearchedItems> GetSearchValue(string value)
+        public List<string> GetSearchValue(string value)
         {
             if(string.IsNullOrEmpty(value))
-                return new List<SearchedItems>();
-            return _context.SearchedItems
-                .Where(x => x.ProductValue.ToLower().StartsWith(value.ToLower()))
+                return new List<string>();
+            return _context.Product
+                .Where(x => x.Title.ToLower().StartsWith(value.ToLower()))
                 .OrderByDescending(x => x.ClickedCount)
-                .Take(5)
+                .Take(5).Select(x=>x.Title)
                 .ToList();
         }
      
 
-     public Pagination<Product> GetAllSortedAndFilterdInPage(string? filterBy,string filterValue,  string? sortBy, string? value, bool isAssending=true,int page = 1, string[]?includes=null)
+     public Pagination<Product> GetAllSortedAndFilterdInPage(string filterValue,  string? sortBy, string? value, bool isAssending=true,int page = 1, string[]?includes=null)
      {
             IQueryable<Product> query = _context.Product.AsNoTracking().AsQueryable();
 
@@ -92,9 +92,9 @@ namespace TBL.EF.Repositories
                 foreach(var include in includes) 
                     query=query.Include(include);
             }
-            if (!string.IsNullOrEmpty(filterBy) && !string.IsNullOrEmpty(filterValue))
+            if (!string.IsNullOrEmpty(filterValue))
             {
-                query=BuildFilterQuery(query,filterBy,filterValue);
+                query=BuildFilterQuery(query,filterValue);
             }
 
             if (!string.IsNullOrEmpty(sortBy) )
@@ -144,8 +144,8 @@ namespace TBL.EF.Repositories
            return  query.Provider.CreateQuery<Product>(methodCall);
         }
 
-        private IQueryable<Product> BuildFilterQuery(IQueryable<Product> query, string filterBy,string filterValue)
-        {
+        private IQueryable<Product> BuildFilterQuery(IQueryable<Product> query,string filterValue)
+      {
             //var parameter = Expression.Parameter(typeof(Product), "x");
             //var property = Expression.Property(parameter, filterBy);
 

@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
-using Stripe.Checkout;
-using System.Collections.Generic;
 using System.Security.Claims;
 using TBL.Core.Contracts;
 using TBL.Core.Enums;
@@ -136,28 +134,38 @@ namespace TBR.Store.Areas.Admin.Controllers
         [Authorize(Roles = $"{Roles.Role_Employee},{Roles.Role_Admin}")]
         public async Task<IActionResult> CancelOrder()
         {
-            var orderHeader = await _unitOfWork.OrderHeader.GetSpecific(x => x.Id == orderVM.OrderHeader.Id, true);
-
-            if (orderHeader.PaymentStatus == Payment_Status.PaymentStatusApproved)
+            try
             {
-                var options = new RefundCreateOptions
+
+
+                var orderHeader = await _unitOfWork.OrderHeader.GetSpecific(x => x.Id == orderVM.OrderHeader.Id, true);
+
+                if (orderHeader.PaymentStatus == Payment_Status.PaymentStatusApproved)
                 {
-                    Reason = RefundReasons.RequestedByCustomer,
-                    PaymentIntent = orderHeader.PaymentIntentId
-                };
+                    var options = new RefundCreateOptions
+                    {
+                        Reason = RefundReasons.RequestedByCustomer,
+                        PaymentIntent = orderHeader.PaymentIntentId
+                    };
 
-                var service = new RefundService();
-                Refund refund = service.Create(options);
+                    var service = new RefundService();
+                    Refund refund = service.Create(options);
 
-                await _unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, Payment_Status.StatusCancelled, Payment_Status.StatusRefunded);
+                    await _unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, Payment_Status.StatusCancelled, Payment_Status.StatusRefunded);
+                }
+                else
+                {
+                    await _unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, Payment_Status.StatusCancelled, Payment_Status.StatusCancelled);
+                }
+                await _unitOfWork.CompleteAsync();
+                TempData["Success"] = "Order Cancelled Successfully.";
+                return RedirectToAction(nameof(Details), new { id = orderVM.OrderHeader.Id });
             }
-            else
+            catch(Exception ex)
             {
-              await   _unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, Payment_Status.StatusCancelled, Payment_Status.StatusCancelled);
+                TempData["error"] = "something went wrong";
+                return BadRequest(ex);
             }
-           await  _unitOfWork.CompleteAsync();
-            TempData["Success"] = "Order Cancelled Successfully.";
-            return RedirectToAction(nameof(Details), new { id = orderVM.OrderHeader.Id });
 
         }
 

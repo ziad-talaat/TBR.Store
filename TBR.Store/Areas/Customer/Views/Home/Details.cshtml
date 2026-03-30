@@ -1,4 +1,14 @@
 ﻿@model ShoppingCart
+@{
+    var sortBy = ViewBag.sortBy as string ?? "";
+    var isAssending = (bool)(ViewBag.isAssending ?? true);
+    var searchValue = ViewBag.searchValue as string ?? "";
+    var categoryValue = ViewBag.categoryValue as string ?? "";
+    var pageNumber = (int)(ViewBag.pageNumber ?? 1);
+
+
+   
+}
 <form method="post">
     <input hidden asp-for="ProductId" />
     <div class="card shadow border-0 mt-4 mb-4">
@@ -14,7 +24,14 @@
             <div class="py-3">
                 <div class="row">
                     <div class="col-6 col-md-2 offset-lg-1 pb-1">
-                        <a asp-action="Index" class="btn btn-outline-primary bg-gradient mb-5 fw-semibold btn-sm text-uppercase">
+                        <a asp-action="Index"
+                           asp-route-searchValue="@searchValue"
+                           asp-route-sortBy="@sortBy"
+                           asp-route-categoryValue="@categoryValue"
+                           asp-route-isAssending="@isAssending"
+                           asp-route-pageNumber="@pageNumber"
+                          
+                        class="btn btn-outline-primary bg-gradient mb-5 fw-semibold btn-sm text-uppercase">
                             <small>Back to home</small>
                         </a>
                     </div>
@@ -291,4 +308,8 @@
                 </div>
             </div>`);
     });
+
+
+
+ 
 </script>

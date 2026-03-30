@@ -16,7 +16,7 @@
 
             <div class="row mb-3 pb-3">
                 <div class="col-md-2 offset-md-1">
-                    <a asp-action="Index" asp-controller="Home" class="btn btn-outline-primary text-uppercase mb-5 btn-sm">
+                    <a href="@(Context.Session.GetString("LastIndexUrl") ?? Url.Action("Index", "Home"))" class="btn btn-outline-primary text-uppercase mb-5 btn-sm">
                         <small>Continue Shopping</small>
                     </a>
                 </div>
@@ -267,7 +267,13 @@
 
             }
         });
+                const updateCartLink = function (queryString) {
+            const cartLink = document.querySelector('#cartLink');
+            if (!cartLink) return;
 
+            const returnUrl = '/Customer/Home/Index?' + queryString;
+            cartLink.href = '/Customer/Cart/Index?returnUrl=' + encodeURIComponent(returnUrl);
+        }
         
     </script>
 }

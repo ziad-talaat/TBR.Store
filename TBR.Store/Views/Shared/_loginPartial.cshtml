@@ -15,6 +15,8 @@
 <ul class="navbar-nav">
     @if (User.Identity?.IsAuthenticated ?? false)
     {
+        
+            
 
         <li class="nav-item">
             @if (isAccountPage is false)
@@ -25,20 +27,23 @@
             }
             else
             {
-                <a asp-action="Index" asp-controller="Home" class="nav-link">
+                <a asp-area="Customer" asp-action="Index" asp-controller="Home" class="nav-link">
                     <i class="fas fa-home"></i> Home
             </a>
             }
-        </li> 
+        </li>
+
         <li class="nav-item">
             <form asp-area="Customer"
                   asp-controller="Account"
                   asp-action="Logout"
                   method="post"
                   class="form-inline">
-                <button type="submit" class="nav-link btn btn-link border-0">Logout</button>
+                <button type="submit"  class="nav-link btn btn-link border-0">Logout</button>
             </form>
         </li>
+
+
     }
     else
     {

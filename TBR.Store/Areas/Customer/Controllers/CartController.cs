@@ -16,7 +16,7 @@ namespace TBR.Store.Areas.Customer.Controllers
 {
     [Area(nameof(Areas.Customer))]
     [Authorize]
-    public class CartController : Controller
+    public class CartController : BaseController
     {
         private readonly IUnitOfWork _unitOfWork;
         [BindProperty]
@@ -29,8 +29,8 @@ namespace TBR.Store.Areas.Customer.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var claimIdentity = (ClaimsIdentity)User.Identity;
-            var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var claimIdentity = (ClaimsIdentity)User.Identity!;
+            var userId = claimIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
 
             var cartVM = new CartVM
@@ -51,6 +51,7 @@ namespace TBR.Store.Areas.Customer.Controllers
             }
              return View(cartVM);
         }
+
         [HttpGet]
         public async Task<IActionResult> Plus(int cartId,double oldPrice,decimal oldTotalPrice)
         {

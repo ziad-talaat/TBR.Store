@@ -23,9 +23,6 @@ namespace TBL.Core.Models
         [Range(1,1000)]
         public double DisplayPrice { get; set; }
 
-
-
-
         [Required]
         [Display(Name = "price 1-50")]
         [Range(1, 1000)]
@@ -47,10 +44,11 @@ namespace TBL.Core.Models
         [ForeignKey(nameof(Product.CategoryId))]
         public Category? Category { get; set; }
 
-    
-        //public string? ImageURL { get; set; }
 
-        
+        //public string? ImageURL { get; set; }
+        public int ClickedCount { get; set; }
+
+
 
         public ICollection<ProductImages> ProductImages { get; set; } = new List<ProductImages>();
         public ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
