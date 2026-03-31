@@ -36,10 +36,6 @@
 
             <div class="tbr-links" id="navLinks">
 
-                <a class="tbr-nav-link" asp-area="Customer" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-house me-1"></i>Home
-                </a>
-
                 @if (User.Identity.IsAuthenticated)
                 {
                     <a class="tbr-nav-link" asp-area="Admin" asp-controller="Order" asp-action="Index">

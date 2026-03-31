@@ -63,6 +63,9 @@ function lockUnLock(id) {
         type: "POST",
         url: '/admin/user/LockUnLock',
         data: JSON.stringify(id),
+        headers: {
+            "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+        },
         contentType: "application/json",
         success: function (data) {
             toastr.success(data.message);
