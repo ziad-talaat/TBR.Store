@@ -1,6 +1,7 @@
 ﻿using Application.EF.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using TBL.Core.Contracts;
 using TBL.Core.Enums;
 using TBL.Core.Models;
 
@@ -11,12 +12,19 @@ namespace TBL.EF.DBIntializer
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly AppDbContext _context;
+        private readonly ISearchTrie _trie;
+        private readonly IUnitOfWork _unitOfWork;
+
+
         public DbIntializer(RoleManager<IdentityRole> roleManager,
-            AppDbContext context, UserManager<ApplicationUser> userManager)
+            AppDbContext context, UserManager<ApplicationUser> userManager,ISearchTrie trie,
+            IUnitOfWork unitOfWork)
         {
             _roleManager = roleManager;
             _context = context; 
             _userManager = userManager;
+            _trie = trie;
+            _unitOfWork = unitOfWork;
         }
 
 
@@ -59,6 +67,12 @@ namespace TBL.EF.DBIntializer
 
             }
             return; 
+        }
+        public  void SeedAsync()
+        {
+            var names = _unitOfWork.Products.GetQueryy().AsNoTracking().Select(x => new {x.Title,x.ClickedCount}).ToList();
+            foreach (var name in names)
+                _trie.Insert(name.Title.ToLower(),name.ClickedCount);
         }
     }
 }

@@ -32,15 +32,7 @@ namespace TBR.Store
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("ConStr")
-        //            ,
-        //sqlOptions =>
-        //{
-        //    sqlOptions.EnableRetryOnFailure(
-        //        maxRetryCount: 15,
-        //        maxRetryDelay: TimeSpan.FromSeconds(30),
-        //        errorNumbersToAdd: null
-        //    );
-        //}
+        
         );
             });
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -49,6 +41,7 @@ namespace TBR.Store
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IAccountService, TBL.EF.Service.AccountService>();
             builder.Services.AddScoped<IDbIntializer, DbIntializer>();
+            builder.Services.AddSingleton<ISearchTrie, SearchTrie>();
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
@@ -99,6 +92,7 @@ namespace TBR.Store
                    var  dbIntilaizer= scope.ServiceProvider.GetRequiredService<IDbIntializer>();
 
                    await  dbIntilaizer.Intialize();
+                    dbIntilaizer.SeedAsync();
                 }
             }
         }

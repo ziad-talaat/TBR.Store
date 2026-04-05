@@ -22,11 +22,13 @@ namespace TBR.Store.Areas.Customer.Controllers
     public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IUnitOfWork _unitOfWork;   
-        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ISearchTrie _searchTrie;
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork,ISearchTrie searchTrie)
         {
             _logger = logger;
             _unitOfWork= unitOfWork;
+            _searchTrie= searchTrie;
         }
 
 
@@ -49,7 +51,8 @@ namespace TBR.Store.Areas.Customer.Controllers
                    if( product is not null)
                     {
                         product.ClickedCount++;
-                    _unitOfWork?.CompleteAsync();
+                       _unitOfWork?.CompleteAsync();
+                        _searchTrie.UpdateCount(product.Title, product.ClickedCount);
                     }
 
                 }
@@ -73,9 +76,18 @@ namespace TBR.Store.Areas.Customer.Controllers
 
           [HttpGet]
          public IActionResult GetSearchBar(string value)
-         {
-            var result = _unitOfWork.Products.GetSearchValue(value);
-            return PartialView("_searchBar",result);
+       {
+            //var result = _unitOfWork.Products.GetSearchValue(value);
+
+             //.Where(x => x.Title.ToLower().StartsWith(value.ToLower()))
+             //   .OrderByDescending(x => x.ClickedCount)
+             //   .Take(5).Select(x => x.Title)
+             //   .ToList();
+
+
+            List<(string, int)> words = new List<(string ,int)>();
+             _searchTrie.AutoComplete(value?.ToLower(), words);
+            return PartialView("_searchBar",words.OrderByDescending(x=>x.Item2).Take(5).Select(x=>x.Item1).ToList());
          }
 
 

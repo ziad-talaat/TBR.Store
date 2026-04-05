@@ -16,10 +16,12 @@ namespace TBR.Store.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ISearchTrie _searchTrie;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public ProductController(IUnitOfWork UnitOfWork,IWebHostEnvironment webHostEnvironment)
+        public ProductController(IUnitOfWork UnitOfWork,IWebHostEnvironment webHostEnvironment, ISearchTrie searchTrie)
         {
-            _unitOfWork = UnitOfWork;   
+            _unitOfWork = UnitOfWork;
+            _searchTrie = searchTrie;
             _webHostEnvironment=webHostEnvironment;
         }
         [HttpGet]
@@ -67,6 +69,7 @@ namespace TBR.Store.Areas.Admin.Controllers
 
             await _unitOfWork.Products.AddAsync(product);
             await _unitOfWork.CompleteAsync();
+            _searchTrie.Insert(product.Title,product.ClickedCount);
 
             string wwwRootPath = _webHostEnvironment.WebRootPath;
 
@@ -203,7 +206,7 @@ namespace TBR.Store.Areas.Admin.Controllers
             Product? product = await _unitOfWork.Products.GetOneAsync<int>(id);
             if (product == null)
                 return View("Error");
-
+            _searchTrie.Remove(product.Title);
             return View(product);
         }
 
