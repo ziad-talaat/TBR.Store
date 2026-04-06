@@ -37,6 +37,11 @@
 
             <div class="categoriesContainer form-group mb-2">
                 <label class="form-label small">Category</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="categoryValue" value="all" checked="checked" />
+                    <label class="form-check-label small">all</label>
+                </div>
+                        
                 @foreach (var category in categories)
                 {
                     <div class="form-check">
@@ -47,10 +52,7 @@
                 }
             </div>
 
-         @*   <input id="searchByInput" type="hidden" name="searchBy" value="@currentSearchBy" />
-            <input  id="searchValueInput" type="hidden" name="searchValue" value="@currentSearchValue" />
-            *@
-            @* <button type="submit" class="btn btn-sm btn-primary w-100">Apply</button>*@
+        
         </form>
     </div>
 
@@ -220,44 +222,57 @@
                     callFiltaration();
               });
 
-            
-               searchInput.addEventListener('input',(e)=>{
-                     $.ajax({
-                      url: "/Customer/Home/GetSearchBar",
+
+                     let searchTimeout;
+
+        const performSearch = () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                $.ajax({
+                    url: "/Customer/Home/GetSearchBar",
                     type: "GET",
-                     data: {
-                          value:searchInput.value,
-                     },
+                    data: {
+                        value: searchInput.value,
+                    },
                     success: function (res) {
-                          $('.autocomplete-list').html(res);
-       
+                        $('.autocomplete-list').html(res);
                     },
                     error: function () {
-                      toastr.error("Something went wrong");
+                        toastr.error("Something went wrong");
                     }
                 });
-               });
+            }, 300); 
+        };
 
+        searchInput.addEventListener('input', performSearch);
+        searchInput.addEventListener('input', ()=>{
+            if(searchInput.value===''){
+                 callOnComplete();
+            }
+        });
+        searchInput.addEventListener('search', performSearch);
 
-                searchIcon.addEventListener('click',()=>{
-                  
+         
 
-                      $.ajax({
-                       url: "/Customer/Home/Index",
-                     type: "GET",
-                      data: {
-                            searchValue:searchInput.value,
+        const callOnComplete=function(){
+                       $.ajax({
+                        url: "/Customer/Home/Index",
+                      type: "GET",
+                       data: {
+                             searchValue:searchInput.value,
+                       },
+                      success: function (res) {
+
+                              $('#productContainer').html(res);
+
                       },
-                     success: function (res) {
-                        
-                             $('#productContainer').html(res);
-                         
-                     },
-                     error: function () {
-                       toastr.error("Something went wrong");
-                     }
-                 });
-                });
+                      error: function () {
+                        toastr.error("Something went wrong");
+                      }
+                  });
+        }
+
+                 searchIcon.addEventListener('click',callOnComplete);
 
 
 

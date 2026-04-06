@@ -42,7 +42,7 @@ namespace TBR.Store.Areas.Customer.Controllers
             ViewBag.CurrentPage = data.pageNumber;
 
             bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
-            Pagination<Product> pageDetails=  _unitOfWork.Products.GetAllSortedAndFilterdInPage(data.searchValue, data.sortBy, data.categoryValue, data.isAssending, data.pageNumber, new[] {nameof(Product.ProductImages)});
+            Pagination<Product> pageDetails=  _unitOfWork.Products.GetAllSortedAndFilterdInPage(data?.searchValue, data?.sortBy, data.categoryValue, data.isAssending, data.pageNumber, new[] {nameof(Product.ProductImages)});
             if (isAjax)
             {
                 if (data.fromSearch is true)
@@ -77,14 +77,7 @@ namespace TBR.Store.Areas.Customer.Controllers
           [HttpGet]
          public IActionResult GetSearchBar(string value)
        {
-            //var result = _unitOfWork.Products.GetSearchValue(value);
-
-             //.Where(x => x.Title.ToLower().StartsWith(value.ToLower()))
-             //   .OrderByDescending(x => x.ClickedCount)
-             //   .Take(5).Select(x => x.Title)
-             //   .ToList();
-
-
+          
             List<(string, int)> words = new List<(string ,int)>();
              _searchTrie.AutoComplete(value?.ToLower(), words);
             return PartialView("_searchBar",words.OrderByDescending(x=>x.Item2).Take(5).Select(x=>x.Item1).ToList());

@@ -41,7 +41,6 @@ namespace TBR.Store.Areas.Customer.Controllers
 
 
         [HttpGet]
-        [Authorize("NotAuthorized")]
         public async Task<IActionResult> Register()
         {
            
@@ -56,15 +55,15 @@ namespace TBR.Store.Areas.Customer.Controllers
         }
 
 
-      
+
        
+
 
 
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize("NotAuthorized")]
         public async Task<IActionResult> Register(RegisterVM registerVM, IFormFile? file)
         {
             
@@ -133,7 +132,6 @@ namespace TBR.Store.Areas.Customer.Controllers
 
 
         }
-
 
         [HttpGet]
         [Authorize("NotAuthorized")]

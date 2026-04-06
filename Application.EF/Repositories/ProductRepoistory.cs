@@ -202,7 +202,10 @@ namespace TBL.EF.Repositories
 
         private IQueryable<Product>ApplyFilterByCategory(IQueryable<Product> query, string value)
         {
-            
+            if (value == "all")
+            {
+                return query.AsQueryable();
+            }
 
             var parameter = Expression.Parameter(typeof(Product), "x");
             var categoryProperty = Expression.Property(parameter, nameof(Product.Category));

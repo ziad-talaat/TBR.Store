@@ -668,6 +668,69 @@ bg-success {
         color: #dc3545;
     }
 
+
+.vote-btn {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 2px solid;
+    background-color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* LIKE button normal */
+.like-btn {
+    color: #198754;
+    border-color: #198754;
+}
+
+    /* LIKE button hover */
+    .like-btn:hover {
+        background-color: #198754;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(25, 135, 84, 0.25);
+    }
+
+    /* LIKE button active */
+    .like-btn.active {
+        background-color: #198754;
+        color: white;
+        box-shadow: 0 6px 14px rgba(25, 135, 84, 0.25);
+    }
+
+/* DISLIKE button normal */
+.dislike-btn {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+    /* DISLIKE button hover */
+    .dislike-btn:hover {
+        background-color: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(220, 53, 69, 0.25);
+    }
+
+    /* DISLIKE button active */
+    .dislike-btn.active {
+        background-color: #dc3545;
+        color: white;
+        box-shadow: 0 6px 14px rgba(220, 53, 69, 0.25);
+    }
+
+
+
+
+
 .comment-text {
     margin: 0;
     color: #555;
