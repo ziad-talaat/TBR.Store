@@ -1,21 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using TBL.Core.Contracts;
 using TBL.Core.Converter;
 using TBL.Core.Models;
 using TBL.Core.ViewModel;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using TBL.Core.Enums;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Threading.Tasks;
 using Humanizer;
-
 namespace TBR.Store.Areas.Customer.Controllers
 {
     [Area(nameof(Areas.Customer))]
@@ -154,7 +147,18 @@ namespace TBR.Store.Areas.Customer.Controllers
                     TempData["Error"] = ex.Message;
                 }
             }
-            return RedirectToAction(nameof(HomeController.Index));
+
+
+
+            var data = _unitOfWork.Products.GetCartDataPerProduct(cart.ProductId,cart.UserId);
+            
+
+            return Json(new
+            {
+                success = true,
+                redirectUrl = Url.Action("Index", "Home"),
+                data
+            });
         }
 
         [HttpPost]

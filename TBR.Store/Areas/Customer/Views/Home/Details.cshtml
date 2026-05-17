@@ -9,7 +9,8 @@
 
    
 }
-<form method="post">
+<form id="form" method="post">
+    @Html.AntiForgeryToken();
     <input hidden asp-for="ProductId" />
     <div class="card shadow border-0 mt-4 mb-4">
         <div class="card-header bg-secondary bg-gradient text-light py-4">
@@ -303,7 +304,6 @@
 
 
     document.addEventListener('itemDeleted',()=>{
-        debugger
         
         document.querySelector('.card').insertAdjacentHTML("beforeend",`<div id="feedBackContainer" class="col-12 col-md-6 mt-3">
                 <label for="feedbackInput" class="form-label ms-2 fw-bold">Leave Your Feedback</label>
@@ -316,6 +316,45 @@
             </div>`);
     });
 
+
+
+    $('#form').submit(function(e){
+        e.preventDefault();
+        let formData=$(this).serialize();
+
+
+        $.ajax({
+
+        url: '/Customer/Home/Details',
+        type: 'POST',
+
+        data: formData,
+
+        success: function (response) {
+
+            let oldData=JSON.parse(localStorage.getItem('cartItems')) || [];
+
+             let existingItem = oldData.find(
+                x => x.productId === response.data.productId
+            );
+
+            if(existingItem){
+                existingItem.count=response.data.count;
+                existingItem.price=response.data.price;
+
+            }
+
+            else{
+            oldData.push(response.data);
+            }
+
+
+            localStorage.setItem('cartItems',JSON.stringify(oldData));
+
+             window.location.href = response.redirectUrl;
+        }
+    });
+    });
 
 
  

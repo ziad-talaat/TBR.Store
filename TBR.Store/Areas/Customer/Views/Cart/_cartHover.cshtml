@@ -1,0 +1,60 @@
+﻿@model IEnumerable<CartItemsDetails>
+
+<div class="cart-hover-container">
+
+    <div class="cart-items-scroll">
+
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <div class="cart-item d-flex align-items-center mb-3 pb-2 border-bottom">
+
+                    <div class="cart-item-image me-3" style="padding:5px;">
+                        <img src="@item.ItemImagePath"
+                             width="70"
+                             height="70"
+                             style="object-fit:cover; border-radius:6px;" />
+                    </div>
+
+                    <div class="cart-item-details flex-grow-1">
+
+                        <h4 style="font-weight:bold; font-size:unset;">
+                            @item.ItemName
+                        </h4>
+
+                        <small class="text-muted d-block">
+                            By @item.AuthorName
+                        </small>
+
+                        <span class="fw-bold text-dark">
+                            $@item.Price
+                        </span>
+
+                    </div>
+                </div>
+            }
+
+            <h5>
+                Total: $
+                @Model.Aggregate(0.0, (acc, next) => acc + next.Price)
+            </h5>
+        }
+        else
+        {
+            <p class="text-muted text-center">
+                Your cart is empty
+            </p>
+        }
+
+    </div>
+
+    <div class="cart-footer text-center mt-2">
+        <a asp-controller="Cart"
+           asp-action="Index"
+           class="btn btn-dark w-100">
+            View Cart
+        </a>
+    </div>
+
+</div>

@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Application.EF.Data;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.IdentityModel.Tokens;
@@ -220,7 +221,51 @@ namespace TBL.EF.Repositories
             return query.Where(lambda);
 
         }
-    }
 
-   
+
+        public List<CartItemsDetails> GetCartData(string userId)
+        {
+            var data=_context.ShoppingCart.AsNoTracking()
+                .Include(x=>x.User)
+                .Include(x=>x.Product).ThenInclude(x=>x.ProductImages)
+                .Where(x=>x.UserId==userId).Select(x=>new CartItemsDetails
+                {
+                    ItemName=x.Product.Title,
+                    AuthorName=x.Product.Author,
+                    ItemImagePath=x.Product.ProductImages.FirstOrDefault()!.ImageIrl,
+                    Price= GetPriceBasedOnQuantity(x.Count,x.Product)*x.Count,
+                    count=x.Count,
+                    productId=x.ProductId
+                }).ToList();
+            return data;
+
+        }
+
+        public CartItemsDetails? GetCartDataPerProduct(int productId,string  userId)
+        {
+            var data = _context.ShoppingCart.AsNoTracking()
+                .Include(x => x.Product).ThenInclude(x => x.ProductImages)
+                .Where(x => x.ProductId == productId && x.UserId==userId).Select(x => new CartItemsDetails
+                {
+                    ItemName = x.Product.Title,
+                    AuthorName = x.Product.Author,
+                    ItemImagePath = x.Product.ProductImages.FirstOrDefault()!.ImageIrl,
+                    Price = GetPriceBasedOnQuantity(x.Count, x.Product) * x.Count,
+                    count=x.Count,
+                    productId=x.ProductId
+
+                }).FirstOrDefault();
+            return data;
+
+        }
+
+        public static double GetPriceBasedOnQuantity(int count,Product product)
+        {
+            if (count <= 50)
+                return product.Price;
+            else if (count >= 51 && count <= 100)
+                return product.Price50;
+            return product.Price100;
+        }
+    }
 }

@@ -155,6 +155,11 @@
         const btnContainer=document.querySelector('.btnContainer');
         const total=document.querySelector('#amount');
         const summary=document.querySelector('#summary');
+        const cartCount=document.querySelector('#cartCount');
+       
+
+
+
        
         btnContainer.addEventListener('click',function(e){
          let price= e.target.closest('.text-center');
@@ -184,7 +189,17 @@
                   total.textContent=`${res.totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}  XDR`
                    priceValue.childNodes[0].textContent=`${res.newPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} XDR`
                    e.target.closest('.text-center').dataset.price=res.newPrice;
-                   
+
+                     let oldCartData=JSON.parse(localStorage.getItem('cartItems'));
+                    oldCartData.filter(x=>x.productId=== res.productId).forEach(x=>{
+                       x.count++;
+                     x.price=res.totalPricePerItem;
+                   });
+
+
+
+                   oldCartData=oldCartData.filter(x=>x.count>0);
+                   localStorage.setItem('cartItems',JSON.stringify(oldCartData));
                   
                    }
                    else{
@@ -232,6 +247,19 @@
                    else{
                        toastr.error('somthing went wrong');
                    }
+
+                    let oldCartData=JSON.parse(localStorage.getItem('cartItems'));
+                    oldCartData.filter(x=>x.productId=== res.productId).forEach(x=>{
+                       x.count--;
+                     x.price=res.totalPricePerItem;
+                   });
+                     
+                     
+
+                   oldCartData=oldCartData.filter(x=>x.count>0);
+                   localStorage.setItem('cartItems',JSON.stringify(oldCartData));
+
+                   cartCount.innerHTML = `<h6>${res.cartCount}</h6>`;
                 },
                 error: function () {
                    alert(response.message);
@@ -259,6 +287,13 @@
                    total.textContent=`${newTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} XDR`;
                    if(btnContainer.children.length===0)
                    summary.remove();
+
+                   let oldCartData=JSON.parse(localStorage.getItem('cartItems'));
+                   oldCartData=oldCartData.filter(x=>x.productId!==res.productId);
+                   localStorage.setItem('cartItems',JSON.stringify(oldCartData));
+
+                   cartCount.innerHTML = `<h6>${res.cartCount}</h6>`;
+
                 },
                 error: function () {
                    alert(response.message);

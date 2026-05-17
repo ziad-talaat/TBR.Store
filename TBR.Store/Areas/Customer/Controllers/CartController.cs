@@ -1,16 +1,15 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Stripe;
-using System.Runtime.InteropServices;
-using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using TBL.Core.Contracts;
+using TBL.Core.Contracts.ServiceContracts;
 using TBL.Core.Enums;
 using TBL.Core.Models;
 using TBL.Core.ViewModel;
-using Stripe.Checkout;
-using Microsoft.CodeAnalysis.CSharp;
-using static System.Net.WebRequestMethods;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace TBR.Store.Areas.Customer.Controllers
 {
@@ -19,12 +18,14 @@ namespace TBR.Store.Areas.Customer.Controllers
     public class CartController : BaseController
     {
         private readonly IUnitOfWork _unitOfWork;
+        //private readonly IViewRenderService _viewRender;
         [BindProperty]
         public OrderInfoVM orderInfo { get; set; }
 
-        public CartController(IUnitOfWork unitOfWork)
+        public CartController(IUnitOfWork unitOfWork)//, IViewRenderService viewRender)
         {
             _unitOfWork= unitOfWork;
+            //_viewRender= viewRender;
         }
 
         public async Task<IActionResult> Index()
@@ -73,21 +74,30 @@ namespace TBR.Store.Areas.Customer.Controllers
 
                newTotalPrice = (decimal)price + oldTotalPrice;
             }
+            var productId = cart.ProductId;
 
-            return Json(new {status=true,totalPrice=newTotalPrice,newPrice = price });
+            return Json(new {status=true,totalPrice=newTotalPrice,newPrice = price, productId, totalPricePerItem = price * cart?.Count });
         }
         [HttpGet]
         public async Task<IActionResult> Minus(int cartId, double oldPrice, decimal oldTotalPrice)
         {
+            var userIdentity = (ClaimsIdentity)User.Identity;
+            var userId = userIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ShoppingCart? cart = await _unitOfWork.ShoppingCart
                 .GetSpecific(x => x.Id == cartId, true, new[] { nameof(ShoppingCart.Product) });
             if (cart == null)
                 return Json(false);
 
+            int productId = 0;
+                productId = cart.ProductId;
             if (cart.Count == 1)
+            {
                 _unitOfWork.ShoppingCart.Remove(cart);
-           
+            }
+            else
+            {
                 cart.Count--;
+            }
                 await _unitOfWork.CompleteAsync();
 
             decimal newTotalPrice = 0;
@@ -103,12 +113,16 @@ namespace TBR.Store.Areas.Customer.Controllers
 
                 newTotalPrice = oldTotalPrice - (decimal)price;
             }
+            string cartCount = _unitOfWork.ShoppingCart.GetQueryy().Where(x => x.UserId == userId).Count().ToString();
 
-            return Json(new { status = true, totalPrice = newTotalPrice, newPrice = price });
+
+            return Json(new { status = true, totalPrice = newTotalPrice, newPrice = price ,productId,totalPricePerItem=price*cart?.Count, cartCount });
         }
          [HttpGet]
         public async Task<IActionResult> Delete(int cartId)
         {
+            var userIdentity = (ClaimsIdentity)User.Identity;
+            var userId = userIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ShoppingCart? cart = await _unitOfWork.ShoppingCart.GetSpecific(x => x.Id == cartId, false, new[] {nameof(ShoppingCart.Product) });
 
             if (cart is null)
@@ -118,7 +132,10 @@ namespace TBR.Store.Areas.Customer.Controllers
             
             double price = GetPriceBasedOnQuantity(cart);
             decimal takedOffPrice = (decimal)price * cart.Count;
-            return Json(new {status=true, removedAmount=takedOffPrice});
+
+            string cartCount = _unitOfWork.ShoppingCart.GetQueryy().Where(x => x.UserId == userId).Count().ToString();
+
+            return Json(new {status=true, removedAmount=takedOffPrice,productId=cart.ProductId, cartCount });
         }
 
         public async Task<IActionResult> Summary()
@@ -271,8 +288,6 @@ namespace TBR.Store.Areas.Customer.Controllers
 
             return View(id);
         }
-
-
         [NonAction]
         private double GetPriceBasedOnQuantity(ShoppingCart cart)
         {
@@ -280,12 +295,77 @@ namespace TBR.Store.Areas.Customer.Controllers
                 return cart.Product.Price;
             else if(cart.Count>=51 && cart.Count <=100)
                 return cart.Product.Price50;
-
             return cart.Product.Price100;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetCartItemsDetails()
+        {
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+           var data= _unitOfWork.Products.GetCartData(userId);
 
+            string html = await RenderPartialViewToStringAsync(
 
+          this,
+          "_cartHover",
+          data
+      );
+
+            return Json(new
+            {
+                html,
+                data = data.Select(x => new
+                {
+                    x.AuthorName,
+                    x.count,
+                    x.ItemImagePath,
+                    x.ItemName,
+                    x.Price,
+                    x.productId
+                }).ToList()
+            });
+           
+
+            //return PartialView("_cartHover", data);
+        }
+
+        public static async Task<string> RenderPartialViewToStringAsync(
+  Controller controller,
+  string viewName,
+  object model)
+        {
+            controller.ViewData.Model = model;
+
+            using var writer = new StringWriter();
+
+            var viewEngine = controller.HttpContext.RequestServices
+                .GetService<ICompositeViewEngine>();
+
+            var viewResult = viewEngine.FindView(
+                controller.ControllerContext,
+                viewName,
+                false
+            );
+
+            if (!viewResult.Success)
+            {
+                throw new Exception($"View '{viewName}' not found.");
+            }
+
+            var viewContext = new ViewContext(
+                controller.ControllerContext,
+                viewResult.View,
+                controller.ViewData,
+                controller.TempData,
+                writer,
+                new HtmlHelperOptions()
+            );
+
+            await viewResult.View.RenderAsync(viewContext);
+
+            return writer.ToString();
+        }
 
     }
 }

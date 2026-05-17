@@ -32,4 +32,15 @@ namespace TBL.Core.Models
         [NotMapped]
         public double Price{ get; set; }
     }
+
+    public class CartItemsDetails
+    {
+        public  int productId { get; set; }
+        public string  ItemName{ get; set; }
+        public string  ItemImagePath{ get; set; }
+        public string  AuthorName{ get; set; }
+        public double Price{ get; set; }
+        public int count { get; set; } 
+
+    }
 }

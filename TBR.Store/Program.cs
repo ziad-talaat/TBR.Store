@@ -42,7 +42,7 @@ namespace TBR.Store
             builder.Services.AddScoped<IAccountService, TBL.EF.Service.AccountService>();
             builder.Services.AddScoped<IDbIntializer, DbIntializer>();
             builder.Services.AddSingleton<ISearchTrie, SearchTrie>();
-
+            //builder.Services.AddScoped<IViewRenderService, ViewRenderService>();
             builder.Services.ConfigureApplicationCookie(options =>
             {
                 options.AccessDeniedPath = "/Customer/Account/AccessDenied";
