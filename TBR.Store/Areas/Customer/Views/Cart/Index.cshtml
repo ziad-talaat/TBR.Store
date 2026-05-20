@@ -176,8 +176,6 @@
         },
                 data: {
                     cartId:id,
-                    oldPrice:e.target.closest('.text-center').dataset.price,
-                   oldTotalPrice:Number(total.dataset.totalAmount)
                 },
                 success: function (res) {
                     if(res.status ==true){
@@ -223,8 +221,7 @@
         },
                 data: {
                     cartId:id,
-                    oldPrice:e.target.closest('.text-center').dataset.price,
-                   oldTotalPrice:Number(total.dataset.totalAmount)
+                   
                 },
                 success: function (res) {
                     if(res.status ==true){

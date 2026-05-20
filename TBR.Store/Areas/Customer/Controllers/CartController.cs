@@ -54,12 +54,27 @@ namespace TBR.Store.Areas.Customer.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Plus(int cartId,double oldPrice,decimal oldTotalPrice)
+        public async Task<IActionResult> Plus(int cartId)
         {
             ShoppingCart? cart = await _unitOfWork.ShoppingCart
                  .GetSpecific(x => x.Id == cartId, true, new[] { nameof(ShoppingCart.Product) });
-            if (cart == null)
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (cart == null || cart.UserId != userId)
                 return Json(false);
+
+
+            var allUserCartsPrices = _unitOfWork.ShoppingCart.GetQueryy().Where(x=>x.UserId==userId).Select(x=>new
+            {
+               
+                count =x.Count,
+                price=GetPriceBasedOnQuantity(x.Count,x.Product)
+            }).ToList();
+
+            double oldPrice = GetPriceBasedOnQuantity(cart);
+            decimal oldTotalPrice = (decimal) allUserCartsPrices.Sum(x => x.count * x.price);
+
+
                 cart.Count++;
                 await _unitOfWork.CompleteAsync();
             decimal newTotalPrice=0;
@@ -79,17 +94,32 @@ namespace TBR.Store.Areas.Customer.Controllers
             return Json(new {status=true,totalPrice=newTotalPrice,newPrice = price, productId, totalPricePerItem = price * cart?.Count });
         }
         [HttpGet]
-        public async Task<IActionResult> Minus(int cartId, double oldPrice, decimal oldTotalPrice)
+        public async Task<IActionResult> Minus(int cartId)
         {
             var userIdentity = (ClaimsIdentity)User.Identity;
             var userId = userIdentity.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             ShoppingCart? cart = await _unitOfWork.ShoppingCart
                 .GetSpecific(x => x.Id == cartId, true, new[] { nameof(ShoppingCart.Product) });
-            if (cart == null)
+            if (cart == null || cart.UserId != userId)
                 return Json(false);
 
+           
+
+
+            var allUserCartsPrices = _unitOfWork.ShoppingCart.GetQueryy().Where(x => x.UserId == userId).Select(x => new
+            {
+               
+                count = x.Count,
+                price = GetPriceBasedOnQuantity(x.Count, x.Product)
+            }).ToList();
+
+            double oldPrice = GetPriceBasedOnQuantity(cart);
+            decimal oldTotalPrice = (decimal)allUserCartsPrices.Sum(x => x.count * x.price);
+
+
             int productId = 0;
-                productId = cart.ProductId;
+            productId = cart.ProductId;
+
             if (cart.Count == 1)
             {
                 _unitOfWork.ShoppingCart.Remove(cart);
@@ -296,6 +326,16 @@ namespace TBR.Store.Areas.Customer.Controllers
             else if(cart.Count>=51 && cart.Count <=100)
                 return cart.Product.Price50;
             return cart.Product.Price100;
+        }
+
+        [NonAction]
+        private static double GetPriceBasedOnQuantity(int count,Product product)
+        {
+            if (count <= 50)
+                return product.Price;
+            else if (count >= 51 && count <= 100)
+                return product.Price50;
+            return product.Price100;
         }
 
         [HttpGet]
